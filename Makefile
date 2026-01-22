@@ -19,6 +19,7 @@ help:
 # Deploy application (complete setup)
 deploy:
 	@echo "🚀 Deploying TopicMatcher application..."
+	git pull
 	docker-compose build --no-cache
 	docker-compose up -d
 	@echo "⏳ Waiting for containers to be ready..."
