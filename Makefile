@@ -23,9 +23,17 @@ deploy:
 	docker-compose up -d
 	@echo "⏳ Waiting for containers to be ready..."
 	sleep 10
-	docker-compose exec app composer install --no-dev --optimize-autoloader
+	@echo "🔧 Fixing permissions and git configuration..."
+	docker-compose exec app git config --global --add safe.directory /var/www
+	docker-compose exec app chown -R www-data:www-data /var/www
+	docker-compose exec app mkdir -p /var/www/vendor
+	docker-compose exec app chown -R www-data:www-data /var/www/vendor
+	@echo "📦 Installing dependencies..."
+	docker-compose exec app composer install --optimize-autoloader
+	@echo "🗃️ Running database migrations..."
 	docker-compose exec app php bin/console doctrine:migrations:migrate --no-interaction
-	docker-compose exec app php bin/console cache:clear --env=prod
+	@echo "🧹 Clearing cache..."
+	docker-compose exec app php bin/console cache:clear
 	@echo "✅ Application deployed successfully!"
 	@echo "🌐 Application: http://localhost:8080"
 	@echo "🗄️  phpMyAdmin: http://localhost:8081"
@@ -67,6 +75,7 @@ test:
 # Install dependencies
 install:
 	@echo "📦 Installing dependencies..."
+	docker-compose exec app git config --global --add safe.directory /var/www
 	docker-compose exec app composer install
 
 # Clean up
