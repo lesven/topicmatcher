@@ -69,7 +69,7 @@ class ModerationController extends AbstractController
         }
 
         try {
-            $post->approve();
+            $post->approve($this->getUser()->getEmail());
             $this->entityManager->flush();
             
             $this->addFlash('success', sprintf('Post "%s" wurde erfolgreich freigegeben.', $post->getTitle()));
@@ -101,7 +101,7 @@ class ModerationController extends AbstractController
         }
 
         try {
-            $post->reject();
+            $post->reject($this->getUser()->getEmail());
             $this->entityManager->flush();
             
             $this->addFlash('warning', sprintf('Post "%s" wurde abgelehnt.', $post->getTitle()));
