@@ -24,11 +24,9 @@ deploy:
 	docker-compose up -d
 	@echo "⏳ Waiting for containers to be ready..."
 	sleep 10
-	@echo "🔧 Fixing permissions and git configuration..."
-	docker-compose exec app git config --global --add safe.directory /var/www
-	docker-compose exec app chown -R www-data:www-data /var/www
-	docker-compose exec app mkdir -p /var/www/vendor
-	docker-compose exec app chown -R www-data:www-data /var/www/vendor
+	@echo "🔧 Fixing git configuration and creating directories..."
+	docker-compose exec app git config --global --add safe.directory /var/www || true
+	docker-compose exec app mkdir -p /var/www/vendor /var/www/var/cache /var/www/var/log || true
 	@echo "📦 Installing dependencies..."
 	docker-compose exec app composer install --optimize-autoloader
 	@echo "🗃️ Running database migrations..."
