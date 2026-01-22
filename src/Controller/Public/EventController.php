@@ -155,7 +155,8 @@ class EventController extends AbstractController
                         $post,
                         $data['name'],
                         $data['email'],
-                        $data['privacyAccepted'] ?? false
+                        $data['privacyAccepted'] ?? false,
+                        $data['message'] ?? null
                     );
                     
                     return $this->redirectToRoute('post_interest_success', [

@@ -284,6 +284,12 @@
                             </a>
                         {% endif %}
                         
+                        <a href="{{ path('backoffice_events_posts', {slug: event.slug}) }}" 
+                           class="btn btn-outline-primary">
+                            <i class="bi bi-file-earmark-text me-2"></i>
+                            Alle Beiträge anzeigen ({{ postsStats.total }})
+                        </a>
+                        
                         <a href="{{ path('backoffice_categories_index', {slug: event.slug}) }}" 
                            class="btn btn-outline-primary">
                             <i class="bi bi-tags me-2"></i>

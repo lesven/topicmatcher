@@ -1,0 +1,265 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ event.name }} - Beiträge - {{ parent() }}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ path('backoffice_dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ path('backoffice_events_index') }}">Events</a></li>
+                    <li class="breadcrumb-item"><a href="{{ path('backoffice_events_detail', {slug: event.slug}) }}">{{ event.name }}</a></li>
+                    <li class="breadcrumb-item active">Beiträge</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-1">{{ event.name }}</h1>
+                    <p class="text-muted mb-0">
+                        <i class="bi bi-file-earmark-text me-2"></i>
+                        Alle Beiträge für dieses Event
+                    </p>
+                </div>
+                <div>
+                    <a href="{{ path('backoffice_events_detail', {slug: event.slug}) }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Zurück zum Event
+                    </a>
+                </div>
+            </div>
+
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            {% for message in app.flashes('error') %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-info">
+                <div class="card-body text-center">
+                    <h5 class="card-title mb-1">Gesamt</h5>
+                    <h3 class="mb-0">{{ stats.total }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body text-center">
+                    <h5 class="card-title mb-1">Zu moderieren</h5>
+                    <h3 class="mb-0">{{ stats.submitted }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-success">
+                <div class="card-body text-center">
+                    <h5 class="card-title mb-1">Freigegeben</h5>
+                    <h3 class="mb-0">{{ stats.approved }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-danger">
+                <div class="card-body text-center">
+                    <h5 class="card-title mb-1">Abgelehnt</h5>
+                    <h3 class="mb-0">{{ stats.rejected }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Buttons -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-filter me-2"></i>
+                            Beiträge filtern
+                        </h5>
+                        <div class="btn-group" role="group">
+                            <a href="{{ path('backoffice_events_posts', {slug: event.slug}) }}" 
+                               class="btn {{ currentStatus is null ? 'btn-primary' : 'btn-outline-primary' }}">
+                                Alle ({{ stats.total }})
+                            </a>
+                            <a href="{{ path('backoffice_events_posts', {slug: event.slug, status: 'submitted'}) }}" 
+                               class="btn {{ currentStatus == 'submitted' ? 'btn-warning' : 'btn-outline-warning' }}">
+                                Zu moderieren ({{ stats.submitted }})
+                            </a>
+                            <a href="{{ path('backoffice_events_posts', {slug: event.slug, status: 'approved'}) }}" 
+                               class="btn {{ currentStatus == 'approved' ? 'btn-success' : 'btn-outline-success' }}">
+                                Freigegeben ({{ stats.approved }})
+                            </a>
+                            <a href="{{ path('backoffice_events_posts', {slug: event.slug, status: 'rejected'}) }}" 
+                               class="btn {{ currentStatus == 'rejected' ? 'btn-danger' : 'btn-outline-danger' }}">
+                                Abgelehnt ({{ stats.rejected }})
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    {% if posts is empty %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-file-earmark-text fa-3x text-muted mb-3"></i>
+                            <h4>Keine Beiträge gefunden</h4>
+                            {% if currentStatus %}
+                                <p class="text-muted">
+                                    Es gibt keine Beiträge mit dem Status "{{ currentStatus }}" für dieses Event.
+                                </p>
+                                <a href="{{ path('backoffice_events_posts', {slug: event.slug}) }}" 
+                                   class="btn btn-outline-primary">
+                                    Alle Beiträge anzeigen
+                                </a>
+                            {% else %}
+                                <p class="text-muted">
+                                    Für dieses Event wurden noch keine Beiträge erstellt.
+                                </p>
+                                {% if event.isPubliclyVisible() %}
+                                    <a href="{{ path('post_create', {slug: event.slug}) }}" 
+                                       class="btn btn-primary" target="_blank">
+                                        <i class="bi bi-plus-circle me-2"></i>
+                                        Test-Beitrag erstellen
+                                    </a>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Titel</th>
+                                        <th>Kategorie</th>
+                                        <th>Autor</th>
+                                        <th>Status</th>
+                                        <th>Interessen</th>
+                                        <th>Erstellt</th>
+                                        <th class="text-end">Aktionen</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for post in posts %}
+                                        <tr>
+                                            <td>
+                                                <div>
+                                                    <strong>{{ post.title }}</strong>
+                                                    <br>
+                                                    <small class="text-muted">
+                                                        {{ post.content|u.truncate(80) }}
+                                                    </small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge" style="background-color: {{ post.category.color }}">
+                                                    {{ post.category.name }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    {% if post.authorName %}
+                                                        <strong>{{ post.authorName }}</strong>
+                                                        <br>
+                                                    {% else %}
+                                                        <em class="text-muted">Anonym</em>
+                                                        <br>
+                                                    {% endif %}
+                                                    <small class="text-muted">
+                                                        {{ post.authorEmail|u.truncate(25) }}
+                                                    </small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {% if post.status.value == 'submitted' %}
+                                                    <span class="badge bg-warning">
+                                                        <i class="bi bi-clock"></i> Eingereicht
+                                                    </span>
+                                                {% elseif post.status.value == 'approved' %}
+                                                    <span class="badge bg-success">
+                                                        <i class="bi bi-check-circle"></i> Freigegeben
+                                                    </span>
+                                                {% elseif post.status.value == 'rejected' %}
+                                                    <span class="badge bg-danger">
+                                                        <i class="bi bi-x-circle"></i> Abgelehnt
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">
+                                                        {{ post.status.value }}
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-center">
+                                                {% if post.interests|length > 0 %}
+                                                    <span class="badge bg-primary">
+                                                        <i class="bi bi-people"></i> {{ post.interests|length }}
+                                                    </span>
+                                                {% else %}
+                                                    <span class="text-muted">-</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">
+                                                    {{ post.createdAt|date('d.m.Y H:i') }}
+                                                </small>
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="{{ path('backoffice_moderation_post_detail', {id: post.id}) }}" 
+                                                       class="btn btn-outline-primary" title="Details anzeigen">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                    {% if post.status.canBeModerated() %}
+                                                        <form method="post" action="{{ path('backoffice_moderation_approve', {id: post.id}) }}" 
+                                                              style="display: inline;">
+                                                            <button type="submit" class="btn btn-outline-success" 
+                                                                    title="Freigeben"
+                                                                    onclick="return confirm('Beitrag freigeben?')">
+                                                                <i class="bi bi-check"></i>
+                                                            </button>
+                                                        </form>
+                                                        <form method="post" action="{{ path('backoffice_moderation_reject', {id: post.id}) }}" 
+                                                              style="display: inline;">
+                                                            <button type="submit" class="btn btn-outline-danger" 
+                                                                    title="Ablehnen"
+                                                                    onclick="return confirm('Beitrag ablehnen?')">
+                                                                <i class="bi bi-x"></i>
+                                                            </button>
+                                                        </form>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 text-center">
+        <a href="{{ path('backoffice_events_detail', {slug: event.slug}) }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Zurück zur Event-Übersicht
+        </a>
+    </div>
+{% endblock %}

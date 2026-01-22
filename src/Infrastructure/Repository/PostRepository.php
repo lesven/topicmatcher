@@ -156,4 +156,18 @@ class PostRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    /**
+     * @return Post[]
+     */
+    public function findByEvent(Event $event): array
+    {
+        return $this->createQueryBuilder('p')
+            ->join('p.category', 'c')
+            ->andWhere('p.event = :event')
+            ->setParameter('event', $event)
+            ->orderBy('p.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

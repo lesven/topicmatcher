@@ -184,9 +184,21 @@
                                                 <i class="bi bi-envelope me-2"></i>
                                                 <a href="mailto:{{ interest.email }}">{{ interest.email }}</a>
                                             </p>
+                                            {% if interest.message %}
+                                                <div class="mb-2">
+                                                    <strong>Nachricht:</strong>
+                                                    <div class="mt-1 p-2 bg-light rounded">
+                                                        <small>{{ interest.message }}</small>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
                                             <small class="text-muted">
                                                 <i class="bi bi-calendar3 me-2"></i>
                                                 {{ interest.createdAt|date('d.m.Y H:i') }}
+                                                {% if interest.ipAddress %}
+                                                    <br><i class="bi bi-globe me-2"></i>
+                                                    <code>{{ interest.ipAddress }}</code>
+                                                {% endif %}
                                             </small>
                                         </div>
                                     </div>

@@ -21,7 +21,8 @@ readonly class InterestSubmissionService
         Post $post,
         string $name,
         string $email,
-        bool $privacyAccepted
+        bool $privacyAccepted,
+        ?string $message = null
     ): Interest {
         // Check for duplicates (business rule enforcement)
         if ($this->interestRepository->isDuplicateInterest($post, $email)) {
@@ -37,6 +38,7 @@ readonly class InterestSubmissionService
             $name,
             $email,
             $privacyAccepted,
+            $message,
             $ipAddress,
             $userAgent
         );

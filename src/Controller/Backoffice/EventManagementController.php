@@ -123,6 +123,40 @@ class EventManagementController extends AbstractController
         ]);
     }
 
+    #[Route('/{slug}/posts', name: 'backoffice_events_posts')]
+    public function posts(string $slug, Request $request): Response
+    {
+        $event = $this->eventRepository->findOneBySlug($slug);
+        
+        if (!$event) {
+            throw $this->createNotFoundException('Event nicht gefunden');
+        }
+
+        $status = $request->query->get('status');
+        $statusFilter = $status ? \App\Domain\Participation\PostStatus::tryFrom($status) : null;
+
+        if ($statusFilter) {
+            $posts = $this->postRepository->findByEventAndStatus($event, $statusFilter);
+        } else {
+            $posts = $this->postRepository->findByEvent($event);
+        }
+
+        // Get post statistics for this event
+        $postsStats = [
+            'total' => $this->postRepository->countByEvent($event),
+            'submitted' => $this->postRepository->countByEventAndStatus($event, \App\Domain\Participation\PostStatus::SUBMITTED),
+            'approved' => $this->postRepository->countByEventAndStatus($event, \App\Domain\Participation\PostStatus::APPROVED),
+            'rejected' => $this->postRepository->countByEventAndStatus($event, \App\Domain\Participation\PostStatus::REJECTED),
+        ];
+
+        return $this->render('backoffice/events/posts.html.twig', [
+            'event' => $event,
+            'posts' => $posts,
+            'stats' => $postsStats,
+            'currentStatus' => $status,
+        ]);
+    }
+
     #[Route('/{slug}/activate', name: 'backoffice_events_activate', methods: ['POST'])]
     public function activate(Request $request, string $slug): Response
     {
