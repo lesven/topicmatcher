@@ -61,6 +61,12 @@ class Post
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $moderationNotes = null;
 
+    #[ORM\Column(type: Types::STRING, length: 45, nullable: true)]
+    private ?string $ipAddress = null;
+
+    #[ORM\Column(type: Types::STRING, length: 500, nullable: true)]
+    private ?string $userAgent = null;
+
     #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'posts')]
     #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private Category $category;
@@ -232,6 +238,16 @@ class Post
     {
         $this->moderationNotes = $notes;
         $this->touch();
+    }
+
+    public function getIpAddress(): ?string
+    {
+        return $this->ipAddress;
+    }
+
+    public function getUserAgent(): ?string
+    {
+        return $this->userAgent;
     }
 
     public function getCategory(): Category

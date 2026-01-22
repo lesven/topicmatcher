@@ -24,6 +24,9 @@ class Interest
     #[ORM\Column(type: Types::STRING, length: 255)]
     private string $email;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $message = null;
+
     #[ORM\Column(type: Types::BOOLEAN)]
     private bool $privacyAccepted = false;
 
@@ -44,11 +47,13 @@ class Interest
         string $name,
         string $email,
         bool $privacyAccepted,
+        ?string $message = null,
         ?string $ipAddress = null,
         ?string $userAgent = null
     ) {
         $this->name = $name;
         $this->email = $email;
+        $this->message = $message;
         $this->privacyAccepted = $privacyAccepted;
         $this->ipAddress = $ipAddress;
         $this->userAgent = $userAgent;
@@ -78,6 +83,16 @@ class Interest
     public function setEmail(string $email): void
     {
         $this->email = $email;
+    }
+
+    public function getMessage(): ?string
+    {
+        return $this->message;
+    }
+
+    public function setMessage(?string $message): void
+    {
+        $this->message = $message;
     }
 
     public function isPrivacyAccepted(): bool
