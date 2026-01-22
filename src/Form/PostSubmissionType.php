@@ -59,18 +59,18 @@ class PostSubmissionType extends AbstractType
                 ]
             ])
             ->add('content', TextareaType::class, [
-                'label' => 'Beschreibung',
+                'label' => 'Beschreibung (optional)',
+                'required' => false,
                 'attr' => [
                     'rows' => 4,
-                    'placeholder' => 'Beschreiben Sie Ihr Anliegen in 1-2 Sätzen...',
+                    'placeholder' => 'Optional: Beschreiben Sie Ihr Anliegen in 1-2 Sätzen...',
                     'maxlength' => 500
                 ],
                 'constraints' => [
-                    new Assert\NotBlank(message: 'Die Beschreibung darf nicht leer sein.'),
                     new Assert\Length(
-                        min: 20,
+                        min: 10,
                         max: 500,
-                        minMessage: 'Die Beschreibung muss mindestens {{ limit }} Zeichen lang sein.',
+                        minMessage: 'Die Beschreibung muss mindestens {{ limit }} Zeichen lang sein, wenn angegeben.',
                         maxMessage: 'Die Beschreibung darf maximal {{ limit }} Zeichen lang sein.'
                     )
                 ]

@@ -53,7 +53,11 @@
                     <div class="mb-4">
                         <h5>Inhalt</h5>
                         <div class="p-3 bg-light rounded">
-                            <p class="mb-0" style="white-space: pre-line;">{{ post.content }}</p>
+                            {% if post.content %}
+                                <p class="mb-0" style="white-space: pre-line;">{{ post.content }}</p>
+                            {% else %}
+                                <p class="mb-0 text-muted"><em>Keine Beschreibung angegeben.</em></p>
+                            {% endif %}
                         </div>
                     </div>
                     

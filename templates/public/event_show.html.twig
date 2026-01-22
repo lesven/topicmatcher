@@ -90,7 +90,11 @@
                                             </div>
                                             
                                             <h5 class="card-title">{{ post.title }}</h5>
-                                            <p class="card-text">{{ post.content|u.truncate(120) }}</p>
+                                            {% if post.content %}
+                                                <p class="card-text">{{ post.content|u.truncate(120) }}</p>
+                                            {% else %}
+                                                <p class="card-text text-muted"><em>Nur Titel ohne weitere Beschreibung</em></p>
+                                            {% endif %}
                                         </div>
                                         <div class="card-footer bg-transparent">
                                             <div class="d-flex justify-content-between align-items-center">
@@ -104,18 +108,31 @@
                                                     </small>
                                                 {% endif %}
                                                 
-                                                <div class="d-flex align-items-center gap-2">
-                                                    {% if post.interests|length > 0 %}
-                                                        <small class="text-success">
-                                                            <i class="bi bi-people"></i> {{ post.interests|length }}
-                                                        </small>
-                                                    {% endif %}
-                                                    <a href="{{ path('post_interest', { 
-                                                        slug: event.slug, 
-                                                        id: post.id 
-                                                    }) }}" class="btn btn-primary btn-sm">
-                                                        <i class="bi bi-heart"></i> Interesse
-                                                    </a>
+                                                <div class="d-flex justify-content-between align-items-end">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        {% if post.interests|length > 0 %}
+                                                            <small class="text-success">
+                                                                <i class="bi bi-people"></i> {{ post.interests|length }}
+                                                            </small>
+                                                        {% endif %}
+                                                    </div>
+                                                    
+                                                    <!-- QR Code über Interesse Button -->
+                                                    <div class="text-center">
+                                                        <div class="mb-2">
+                                                            <img src="{{ qrCodes[post.id] }}" 
+                                                                 alt="QR-Code für {{ post.title }}"
+                                                                 class="img-fluid"
+                                                                 style="width: 60px; height: 60px;"
+                                                                 title="QR-Code scannen für schnelles Interesse">
+                                                        </div>
+                                                        <a href="{{ path('post_interest', { 
+                                                            slug: event.slug, 
+                                                            id: post.id 
+                                                        }) }}" class="btn btn-primary btn-sm">
+                                                            <i class="bi bi-heart"></i> Interesse
+                                                        </a>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>

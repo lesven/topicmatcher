@@ -28,8 +28,8 @@ class Post
     #[ORM\Column(type: Types::STRING, length: 255)]
     private string $title;
 
-    #[ORM\Column(type: Types::TEXT)]
-    private string $content;
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $content = null;
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
     private ?string $authorName;
@@ -81,7 +81,7 @@ class Post
         Event $event,
         Category $category,
         string $title,
-        string $content,
+        ?string $content,
         ?string $authorName,
         string $authorEmail,
         bool $showAuthorName,
@@ -118,12 +118,12 @@ class Post
         return $this->title;
     }
 
-    public function getContent(): string
+    public function getContent(): ?string
     {
         return $this->content;
     }
 
-    public function setContent(string $content): void
+    public function setContent(?string $content): void
     {
         $this->content = $content;
         $this->touch();

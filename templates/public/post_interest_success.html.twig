@@ -52,7 +52,11 @@
                             <span class="badge bg-primary">{{ post.category.name }}</span>
                         </div>
                         <h5 class="card-title">{{ post.title }}</h5>
-                        <p class="card-text">{{ post.content }}</p>
+                        {% if post.content %}
+                            <p class="card-text">{{ post.content }}</p>
+                        {% else %}
+                            <p class="card-text text-muted"><em>Keine weitere Beschreibung verfügbar.</em></p>
+                        {% endif %}
                         
                         {% if post.showAuthorName and post.authorName %}
                             <small class="text-muted">

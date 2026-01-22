@@ -12,6 +12,7 @@ use App\Domain\Participation\Post;
 use App\Form\PostSubmissionType;
 use App\Form\InterestSubmissionType;
 use App\Infrastructure\Repository\PostRepository;
+use App\Service\QrCodeService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,7 +26,8 @@ class EventController extends AbstractController
         private readonly PostQueryService $postQueryService,
         private readonly InterestSubmissionService $interestService,
         private readonly EntityManagerInterface $entityManager,
-        private readonly PostRepository $postRepository
+        private readonly PostRepository $postRepository,
+        private readonly QrCodeService $qrCodeService
     ) {
     }
 
@@ -40,9 +42,21 @@ class EventController extends AbstractController
 
         $groupedPosts = $this->postQueryService->getApprovedPostsGroupedByCategory($event);
 
+        // Generate QR codes for each post
+        $qrCodes = [];
+        foreach ($groupedPosts as $categoryName => $categoryData) {
+            foreach ($categoryData['posts'] as $post) {
+                $qrCodes[$post->getId()] = $this->qrCodeService->generateInterestQrCode(
+                    $event->getSlug(), 
+                    $post->getId()
+                );
+            }
+        }
+
         return $this->render('public/event_show.html.twig', [
             'event' => $event,
             'posts' => $groupedPosts,
+            'qrCodes' => $qrCodes,
         ]);
     }
 

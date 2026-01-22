@@ -33,20 +33,7 @@ class AppFixtures extends Fixture
         $moderator->setPassword($this->passwordHasher->hashPassword($moderator, 'mod123'));
         $manager->persist($moderator);
 
-        // Categories
-        $categories = [
-            new Category('Technologie', '#007bff', 'Technische Expertise und Innovationen'),
-            new Category('Business', '#28a745', 'Geschäftsentwicklung und Strategien'),
-            new Category('Design', '#dc3545', 'User Experience und Design'),
-            new Category('Marketing', '#ffc107', 'Marketing und Kommunikation'),
-            new Category('Networking', '#6f42c1', 'Persönliche und berufliche Kontakte'),
-        ];
-
-        foreach ($categories as $category) {
-            $manager->persist($category);
-        }
-
-        // Events
+        // Events first (needed for categories)
         $activeEvent = new Event(
             'Tech Conference 2025',
             'tech-conference-2025',
@@ -58,13 +45,26 @@ class AppFixtures extends Fixture
         $manager->persist($activeEvent);
 
         $draftEvent = new Event(
-            'Startup Summit 2025',
-            'startup-summit-2025',
-            'Networking-Event für Startups und Investoren.',
+            'Future Summit 2025',
+            'future-summit-2025',
+            'Ein Blick in die Zukunft der Technologie und Innovation.',
             new \DateTime('2025-06-20'),
-            'München'
+            'Hamburg Innovation Hub'
         );
         $manager->persist($draftEvent);
+
+        // Categories (now with event reference)
+        $categories = [
+            new Category($activeEvent, 'Technologie', '#007bff', 'Technische Expertise und Innovationen'),
+            new Category($activeEvent, 'Business', '#28a745', 'Geschäftsentwicklung und Strategien'),
+            new Category($activeEvent, 'Design', '#dc3545', 'User Experience und Design'),
+            new Category($activeEvent, 'Marketing', '#ffc107', 'Marketing und Kommunikation'),
+            new Category($activeEvent, 'Networking', '#6f42c1', 'Persönliche und berufliche Kontakte'),
+        ];
+
+        foreach ($categories as $category) {
+            $manager->persist($category);
+        }
 
         // Flush vor Posts um IDs zu haben
         $manager->flush();

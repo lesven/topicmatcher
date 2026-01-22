@@ -142,7 +142,11 @@
                                             </div>
                                             
                                             <h5 class="card-title">{{ post.title }}</h5>
-                                            <p class="card-text">{{ post.content|u.truncate(150) }}</p>
+                                            {% if post.content %}
+                                                <p class="card-text">{{ post.content|u.truncate(150) }}</p>
+                                            {% else %}
+                                                <p class="card-text text-muted"><em>Keine Beschreibung</em></p>
+                                            {% endif %}
                                             
                                             <div class="row text-center text-muted mb-3">
                                                 <div class="col">

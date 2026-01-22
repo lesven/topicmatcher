@@ -164,7 +164,11 @@
                                                     <strong>{{ post.title }}</strong>
                                                     <br>
                                                     <small class="text-muted">
-                                                        {{ post.content|u.truncate(80) }}
+                                                        {% if post.content %}
+                                                            {{ post.content|u.truncate(80) }}
+                                                        {% else %}
+                                                            <em>Keine Beschreibung</em>
+                                                        {% endif %}
                                                     </small>
                                                 </div>
                                             </td>
