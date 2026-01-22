@@ -1,0 +1,164 @@
+{% extends 'backoffice/base.html.twig' %}
+
+{% block title %}Kategorie bearbeiten - {{ category.name }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+            <div class="mb-4">
+                <h1 class="h3">Kategorie bearbeiten</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="{{ path('backoffice_dashboard') }}">Dashboard</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{{ path('backoffice_events_index') }}">Events</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{{ path('backoffice_events_detail', {slug: event.slug}) }}">{{ event.name }}</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{{ path('backoffice_categories_index', {slug: event.slug}) }}">Kategorien</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ category.name }}</li>
+                    </ol>
+                </nav>
+            </div>
+
+            {% for message in app.flashes('error') %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        Kategorie bearbeiten: <strong>{{ category.name }}</strong>
+                        {% if category.approvedPostsCount > 0 %}
+                            <span class="badge bg-info ms-2">{{ category.approvedPostsCount }} Beiträge</span>
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'data-turbo': 'false', 'novalidate': 'novalidate'}}) }}
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                {{ form_label(form.name, null, {'label_attr': {'class': 'form-label required'}}) }}
+                                {{ form_widget(form.name) }}
+                                {{ form_errors(form.name) }}
+                                {% if category.approvedPostsCount > 0 %}
+                                    <div class="form-text text-warning">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        Achtung: Diese Kategorie enthält {{ category.approvedPostsCount }} genehmigte Beiträge. 
+                                        Namensänderungen können verwirrend für Besucher sein.
+                                    </div>
+                                {% else %}
+                                    <div class="form-text">
+                                        Der Name sollte kurz und prägnant sein, z.B. "Technologie", "Marketing", "Business"
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form_label(form.description, null, {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.description) }}
+                                {{ form_errors(form.description) }}
+                                <div class="form-text">
+                                    Optionale Beschreibung der Kategorie für interne Zwecke
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                {{ form_label(form.color, null, {'label_attr': {'class': 'form-label required'}}) }}
+                                {{ form_widget(form.color) }}
+                                {{ form_errors(form.color) }}
+                                <div class="form-text">
+                                    Farbe für die visuelle Darstellung der Kategorie
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form_label(form.sortOrder, null, {'label_attr': {'class': 'form-label required'}}) }}
+                                {{ form_widget(form.sortOrder) }}
+                                {{ form_errors(form.sortOrder) }}
+                                <div class="form-text">
+                                    Niedrigere Zahlen erscheinen zuerst. Kann auch über Drag & Drop geändert werden.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-body">
+                            <h6 class="card-title">Vorschau</h6>
+                            <div id="categoryPreview" class="d-flex align-items-center">
+                                <span class="badge me-2" 
+                                      id="previewBadge"
+                                      style="background-color: {{ category.color }}; color: white; min-width: 20px; height: 20px;">
+                                </span>
+                                <strong id="previewName">{{ category.name }}</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if category.approvedPostsCount > 0 %}
+                        <div class="alert alert-info mt-4">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Statistiken:</strong>
+                            Diese Kategorie enthält {{ category.approvedPostsCount }} genehmigte Beiträge.
+                            Das Löschen ist daher nicht möglich.
+                        </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{{ path('backoffice_categories_index', {slug: event.slug}) }}" 
+                           class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Abbrechen
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Änderungen speichern
+                        </button>
+                    </div>
+                    
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const nameField = document.getElementById('{{ form.name.vars.id }}');
+    const colorField = document.getElementById('{{ form.color.vars.id }}');
+    const previewName = document.getElementById('previewName');
+    const previewBadge = document.getElementById('previewBadge');
+    
+    function updatePreview() {
+        const name = nameField.value || '{{ category.name }}';
+        const color = colorField.value || '{{ category.color }}';
+        
+        previewName.textContent = name;
+        previewBadge.style.backgroundColor = color;
+    }
+    
+    // Update preview on input changes
+    nameField.addEventListener('input', updatePreview);
+    colorField.addEventListener('input', updatePreview);
+    
+    // Initial preview update
+    updatePreview();
+});
+</script>
+{% endblock %}

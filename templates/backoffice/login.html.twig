@@ -27,12 +27,12 @@
                         </div>
                     {% endif %}
 
-                    <form method="post">
+                    <form method="post" data-turbo="false" action="{{ path('backoffice_login') }}">
                         <div class="mb-3">
                             <label for="inputUsername" class="form-label">Benutzername</label>
                             <input type="text" 
                                    value="{{ last_username }}" 
-                                   name="username" 
+                                   name="_username" 
                                    id="inputUsername" 
                                    class="form-control" 
                                    autocomplete="username" 
@@ -43,7 +43,7 @@
                         <div class="mb-3">
                             <label for="inputPassword" class="form-label">Passwort</label>
                             <input type="password" 
-                                   name="password" 
+                                   name="_password" 
                                    id="inputPassword" 
                                    class="form-control" 
                                    autocomplete="current-password" 

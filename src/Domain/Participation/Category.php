@@ -34,14 +34,19 @@ class Category
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $createdAt;
 
+    #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'categories')]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    private Event $event;
+
     /**
      * @var Collection<int, Post>
      */
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: Post::class)]
     private Collection $posts;
 
-    public function __construct(string $name, string $color, ?string $description = null)
+    public function __construct(Event $event, string $name, string $color, ?string $description = null)
     {
+        $this->event = $event;
         $this->name = $name;
         $this->color = $color;
         $this->description = $description;
@@ -125,5 +130,15 @@ class Category
     public function getApprovedPostsCount(): int
     {
         return $this->posts->filter(fn(Post $post) => $post->getStatus() === PostStatus::APPROVED)->count();
+    }
+
+    public function getEvent(): Event
+    {
+        return $this->event;
+    }
+
+    public function setEvent(Event $event): void
+    {
+        $this->event = $event;
     }
 }

@@ -1,0 +1,352 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ event.name }} - Event Details - {{ parent() }}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ path('backoffice_dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ path('backoffice_events_index') }}">Events</a></li>
+                    <li class="breadcrumb-item active">{{ event.name }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Event Information -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-1">{{ event.name }}</h4>
+                            <div class="d-flex align-items-center gap-2">
+                                {% set statusColor = event.status.value == 'draft' ? 'secondary' : 
+                                                    (event.status.value == 'active' ? 'success' : 
+                                                    (event.status.value == 'closed' ? 'warning' : 'dark')) %}
+                                <span class="badge bg-{{ statusColor }}">
+                                    {% if event.status.value == 'draft' %}
+                                        <i class="bi bi-file-earmark"></i> Entwurf
+                                    {% elseif event.status.value == 'active' %}
+                                        <i class="bi bi-play-circle"></i> Aktiv
+                                    {% elseif event.status.value == 'closed' %}
+                                        <i class="bi bi-stop-circle"></i> Geschlossen
+                                    {% else %}
+                                        <i class="bi bi-archive"></i> Archiviert
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <small class="text-muted d-block">Erstellt</small>
+                            <strong>{{ event.createdAt|date('d.m.Y H:i') }}</strong>
+                            {% if event.updatedAt %}
+                                <small class="text-muted d-block mt-1">Zuletzt bearbeitet</small>
+                                <strong class="small">{{ event.updatedAt|date('d.m.Y H:i') }}</strong>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    {% if event.description %}
+                        <div class="mb-4">
+                            <h5>Beschreibung</h5>
+                            <div class="p-3 bg-light rounded">
+                                <p class="mb-0" style="white-space: pre-line;">{{ event.description }}</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Event Details -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Event-Informationen</h5>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <tr>
+                                        <th width="40%">URL-Slug:</th>
+                                        <td><code>{{ event.slug }}</code></td>
+                                    </tr>
+                                    {% if event.eventDate %}
+                                        <tr>
+                                            <th>Event-Datum:</th>
+                                            <td>{{ event.eventDate|date('d.m.Y') }}</td>
+                                        </tr>
+                                    {% endif %}
+                                    {% if event.location %}
+                                        <tr>
+                                            <th>Veranstaltungsort:</th>
+                                            <td>{{ event.location }}</td>
+                                        </tr>
+                                    {% endif %}
+                                    <tr>
+                                        <th>Öffentlich sichtbar:</th>
+                                        <td>
+                                            {% if event.isPubliclyVisible() %}
+                                                <span class="text-success">
+                                                    <i class="bi bi-check-circle"></i> Ja
+                                                    <a href="{{ path('event_show', {slug: event.slug}) }}" 
+                                                       class="btn btn-outline-success btn-sm ms-2"
+                                                       target="_blank">
+                                                        <i class="bi bi-box-arrow-up-right"></i> Ansehen
+                                                    </a>
+                                                </span>
+                                            {% else %}
+                                                <span class="text-muted">
+                                                    <i class="bi bi-x-circle"></i> Nein
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h5>Beiträge-Statistiken</h5>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <tr>
+                                        <th width="40%">Gesamt:</th>
+                                        <td>
+                                            <strong>{{ postsStats.total }}</strong>
+                                            {% if postsStats.total > 0 %}
+                                                <a href="{{ path('backoffice_moderation_index') }}?event={{ event.id }}" 
+                                                   class="btn btn-outline-primary btn-sm ms-2">
+                                                    Verwalten
+                                                </a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Zu moderieren:</th>
+                                        <td>
+                                            {% if postsStats.submitted > 0 %}
+                                                <span class="text-warning">
+                                                    <strong>{{ postsStats.submitted }}</strong>
+                                                </span>
+                                                <a href="{{ path('backoffice_moderation_index', {status: 'submitted'}) }}" 
+                                                   class="btn btn-warning btn-sm ms-2">
+                                                    Moderieren
+                                                </a>
+                                            {% else %}
+                                                <span class="text-muted">0</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Freigegeben:</th>
+                                        <td>
+                                            <span class="text-success">
+                                                <strong>{{ postsStats.approved }}</strong>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Abgelehnt:</th>
+                                        <td>
+                                            <span class="text-danger">
+                                                <strong>{{ postsStats.rejected }}</strong>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status Actions -->
+                <div class="card-footer bg-light">
+                    <h6 class="mb-3">Event-Status verwalten</h6>
+                    <div class="d-flex justify-content-center gap-3 flex-wrap">
+                        {% if event.status.value == 'draft' %}
+                            <form method="post" action="{{ path('backoffice_events_activate', {slug: event.slug}) }}" 
+                                  style="display: inline-block;">
+                                <input type="hidden" name="_token" value="{{ csrf_token('activate' ~ event.id) }}">
+                                <button type="submit" class="btn btn-success"
+                                        onclick="return confirm('Event aktivieren? Es wird öffentlich sichtbar und kann Posts empfangen.')">
+                                    <i class="bi bi-play-circle me-2"></i>Event aktivieren
+                                </button>
+                            </form>
+                        {% endif %}
+                        
+                        {% if event.status.value == 'active' %}
+                            <form method="post" action="{{ path('backoffice_events_close', {slug: event.slug}) }}" 
+                                  style="display: inline-block;">
+                                <input type="hidden" name="_token" value="{{ csrf_token('close' ~ event.id) }}">
+                                <button type="submit" class="btn btn-warning"
+                                        onclick="return confirm('Event schließen? Neue Posts und Interessen werden nicht mehr angenommen.')">
+                                    <i class="bi bi-stop-circle me-2"></i>Event schließen
+                                </button>
+                            </form>
+                        {% endif %}
+                        
+                        {% if event.status.value == 'closed' %}
+                            <form method="post" action="{{ path('backoffice_events_archive', {slug: event.slug}) }}" 
+                                  style="display: inline-block;">
+                                <input type="hidden" name="_token" value="{{ csrf_token('archive' ~ event.id) }}">
+                                <button type="submit" class="btn btn-secondary"
+                                        onclick="return confirm('Event archivieren? Es wird nicht mehr öffentlich sichtbar sein.')">
+                                    <i class="bi bi-archive me-2"></i>Event archivieren
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Event Workflow -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="bi bi-diagram-3 me-2"></i>Event-Workflow
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item {{ event.status.value == 'draft' ? 'active' : 'completed' }}">
+                            <div class="timeline-marker">
+                                <i class="bi bi-file-earmark"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Entwurf</h6>
+                                <small>Event wird erstellt und konfiguriert</small>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item {{ event.status.value == 'active' ? 'active' : (event.status.ordinal() > 0 ? 'completed' : '') }}">
+                            <div class="timeline-marker">
+                                <i class="bi bi-play-circle"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Aktiv</h6>
+                                <small>Öffentlich sichtbar, empfängt Posts und Interessen</small>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item {{ event.status.value == 'closed' ? 'active' : (event.status.ordinal() > 1 ? 'completed' : '') }}">
+                            <div class="timeline-marker">
+                                <i class="bi bi-stop-circle"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Geschlossen</h6>
+                                <small>Keine neuen Posts, aber weiterhin sichtbar</small>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item {{ event.status.value == 'archived' ? 'active' : '' }}">
+                            <div class="timeline-marker">
+                                <i class="bi bi-archive"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Archiviert</h6>
+                                <small>Nicht mehr öffentlich sichtbar</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="bi bi-lightning me-2"></i>Schnellaktionen
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        {% if postsStats.submitted > 0 %}
+                            <a href="{{ path('backoffice_moderation_index', {status: 'submitted'}) }}" 
+                               class="btn btn-warning">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                {{ postsStats.submitted }} Posts moderieren
+                            </a>
+                        {% endif %}
+                        
+                        <a href="{{ path('backoffice_categories_index', {slug: event.slug}) }}" 
+                           class="btn btn-outline-primary">
+                            <i class="bi bi-tags me-2"></i>
+                            Kategorien verwalten ({{ event.categoriesCount }})
+                        </a>
+                        
+                        {% if event.isPubliclyVisible() %}
+                            <a href="{{ path('event_show', {slug: event.slug}) }}" 
+                               class="btn btn-outline-success"
+                               target="_blank">
+                                <i class="bi bi-box-arrow-up-right me-2"></i>
+                                Öffentliche Ansicht
+                            </a>
+                        {% endif %}
+                        
+                        <a href="{{ path('post_create', {slug: event.slug}) }}" 
+                           class="btn btn-outline-primary"
+                           target="_blank">
+                            <i class="bi bi-plus-circle me-2"></i>
+                            Test-Post erstellen
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 d-flex justify-content-center">
+        <a href="{{ path('backoffice_events_index') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Zurück zur Event-Übersicht
+        </a>
+    </div>
+
+    <style>
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #dee2e6;
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 25px;
+        }
+        
+        .timeline-marker {
+            position: absolute;
+            left: -22px;
+            top: 0;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #6c757d;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        
+        .timeline-item.completed .timeline-marker {
+            background: #28a745;
+        }
+        
+        .timeline-item.active .timeline-marker {
+            background: #007bff;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.25);
+        }
+    </style>
+{% endblock %}

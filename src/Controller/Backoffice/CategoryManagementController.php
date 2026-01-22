@@ -1,0 +1,188 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Controller\Backoffice;
+
+use App\Domain\Participation\Category;
+use App\Domain\EventManagement\Event;
+use App\Form\Backoffice\CategoryType;
+use App\Infrastructure\Repository\CategoryRepository;
+use App\Infrastructure\Repository\EventRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+
+#[Route('/admin/events/{slug}/categories')]
+#[IsGranted('ROLE_ADMIN')]
+class CategoryManagementController extends AbstractController
+{
+    public function __construct(
+        private readonly EventRepository $eventRepository,
+        private readonly CategoryRepository $categoryRepository,
+        private readonly EntityManagerInterface $entityManager
+    ) {}
+
+    #[Route('', name: 'backoffice_categories_index', methods: ['GET'])]
+    public function index(string $slug): Response
+    {
+        $event = $this->getEventBySlug($slug);
+        $categories = $this->categoryRepository->findByEvent($event);
+
+        return $this->render('backoffice/categories/index.html.twig', [
+            'event' => $event,
+            'categories' => $categories,
+        ]);
+    }
+
+    #[Route('/create', name: 'backoffice_categories_create', methods: ['GET', 'POST'])]
+    public function create(Request $request, string $slug): Response
+    {
+        $event = $this->getEventBySlug($slug);
+        
+        // Create new category with default sort order
+        $category = new Category(
+            $event, 
+            '', 
+            '#3498db', // Default blue color
+            null
+        );
+        $category->setSortOrder($this->categoryRepository->getNextSortOrder($event));
+
+        $form = $this->createForm(CategoryType::class, $category);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Check for duplicate name within the event
+            $existing = $this->categoryRepository->findByEventAndName($event, $category->getName());
+            if ($existing) {
+                $this->addFlash('error', 'Eine Kategorie mit diesem Namen existiert bereits in diesem Event.');
+                return $this->render('backoffice/categories/create.html.twig', [
+                    'form' => $form,
+                    'event' => $event,
+                ]);
+            }
+
+            $this->categoryRepository->save($category, true);
+            
+            $this->addFlash('success', sprintf('Kategorie "%s" wurde erfolgreich erstellt.', $category->getName()));
+            return $this->redirectToRoute('backoffice_categories_index', ['slug' => $event->getSlug()]);
+        }
+
+        return $this->render('backoffice/categories/create.html.twig', [
+            'form' => $form,
+            'event' => $event,
+        ]);
+    }
+
+    #[Route('/{id}/edit', name: 'backoffice_categories_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, string $slug, int $id): Response
+    {
+        $event = $this->getEventBySlug($slug);
+        $category = $this->getCategoryById($id, $event);
+
+        $form = $this->createForm(CategoryType::class, $category);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Check for duplicate name within the event (excluding current category)
+            $existing = $this->categoryRepository->findByEventAndName($event, $category->getName());
+            if ($existing && $existing->getId() !== $category->getId()) {
+                $this->addFlash('error', 'Eine Kategorie mit diesem Namen existiert bereits in diesem Event.');
+                return $this->render('backoffice/categories/edit.html.twig', [
+                    'form' => $form,
+                    'category' => $category,
+                    'event' => $event,
+                ]);
+            }
+
+            $this->categoryRepository->save($category, true);
+            
+            $this->addFlash('success', sprintf('Kategorie "%s" wurde erfolgreich aktualisiert.', $category->getName()));
+            return $this->redirectToRoute('backoffice_categories_index', ['slug' => $event->getSlug()]);
+        }
+
+        return $this->render('backoffice/categories/edit.html.twig', [
+            'form' => $form,
+            'category' => $category,
+            'event' => $event,
+        ]);
+    }
+
+    #[Route('/{id}/delete', name: 'backoffice_categories_delete', methods: ['POST'])]
+    public function delete(Request $request, string $slug, int $id): Response
+    {
+        $event = $this->getEventBySlug($slug);
+        $category = $this->getCategoryById($id, $event);
+
+        // Check if category has approved posts
+        $approvedPostsCount = $category->getApprovedPostsCount();
+        if ($approvedPostsCount > 0) {
+            $this->addFlash('error', sprintf(
+                'Die Kategorie "%s" kann nicht gelöscht werden, da sie %d genehmigte Beiträge enthält.',
+                $category->getName(),
+                $approvedPostsCount
+            ));
+            return $this->redirectToRoute('backoffice_categories_index', ['slug' => $event->getSlug()]);
+        }
+
+        if ($this->isCsrfTokenValid('delete'.$category->getId(), $request->getPayload()->getString('_token'))) {
+            $this->categoryRepository->remove($category, true);
+            
+            $this->addFlash('success', sprintf('Kategorie "%s" wurde erfolgreich gelöscht.', $category->getName()));
+        } else {
+            $this->addFlash('error', 'Ungültiger CSRF-Token.');
+        }
+
+        return $this->redirectToRoute('backoffice_categories_index', ['slug' => $event->getSlug()]);
+    }
+
+    #[Route('/reorder', name: 'backoffice_categories_reorder', methods: ['POST'])]
+    public function reorder(Request $request, string $slug): Response
+    {
+        $event = $this->getEventBySlug($slug);
+
+        $data = json_decode($request->getContent(), true);
+        if (!is_array($data) || !isset($data['categoryOrder'])) {
+            return $this->json(['success' => false, 'error' => 'Invalid data'], 400);
+        }
+
+        try {
+            $categoryOrder = $data['categoryOrder'];
+            $sortOrderMap = [];
+            
+            foreach ($categoryOrder as $index => $categoryId) {
+                $sortOrderMap[(int) $categoryId] = ($index + 1) * 10; // 10, 20, 30, ...
+            }
+
+            $this->categoryRepository->updateSortOrders($sortOrderMap);
+
+            return $this->json(['success' => true]);
+        } catch (\Exception $e) {
+            return $this->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    private function getEventBySlug(string $slug): Event
+    {
+        $event = $this->eventRepository->findOneBySlug($slug);
+        if (!$event) {
+            throw $this->createNotFoundException('Event nicht gefunden.');
+        }
+
+        return $event;
+    }
+
+    private function getCategoryById(int $id, Event $event): Category
+    {
+        $category = $this->categoryRepository->find($id);
+        if (!$category || $category->getEvent()->getId() !== $event->getId()) {
+            throw $this->createNotFoundException('Kategorie nicht gefunden oder gehört nicht zu diesem Event.');
+        }
+
+        return $category;
+    }
+}

@@ -7,7 +7,7 @@
         <div class="col-12">
             <h1 class="h2 mb-4">
                 Backoffice Dashboard
-                <small class="text-muted">Willkommen, {{ app.user.username }}</small>
+                <small class="text-muted">Willkommen, {{ app.user.name }}</small>
             </h1>
         </div>
     </div>
@@ -153,13 +153,13 @@
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         {% if is_granted('ROLE_ADMIN') %}
-                            <a href="#" class="btn btn-primary">
-                                <i class="fa fa-plus me-2"></i>Neues Event erstellen
+                            <a href="{{ path('backoffice_events_create') }}" class="btn btn-primary">
+                                <i class="bi bi-plus me-2"></i>Neues Event erstellen
                             </a>
                         {% endif %}
                         
-                        <a href="#" class="btn btn-outline-secondary">
-                            <i class="fa fa-list me-2"></i>Alle Events verwalten
+                        <a href="{{ path('backoffice_events_index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-list me-2"></i>Alle Events verwalten
                         </a>
                         
                         {% if stats.pendingModeration > 0 %}

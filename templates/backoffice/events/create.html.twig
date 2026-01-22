@@ -1,0 +1,163 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Event erstellen - {{ parent() }}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ path('backoffice_dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ path('backoffice_events_index') }}">Events</a></li>
+                    <li class="breadcrumb-item active">Neues Event</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="bi bi-calendar-plus me-2"></i>Neues Event erstellen
+                    </h4>
+                </div>
+                
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h6 class="alert-heading">
+                            <i class="bi bi-info-circle me-2"></i>Event-Workflow
+                        </h6>
+                        <p class="mb-0 small">
+                            Events werden als <strong>Entwurf</strong> erstellt und können dann aktiviert werden. 
+                            Aktive Events können Posts und Interessensbekundungen empfangen.
+                        </p>
+                    </div>
+
+                    <form method="post" data-turbo="false">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Event-Name *</label>
+                                    <input type="text" 
+                                           name="name" 
+                                           id="name" 
+                                           class="form-control" 
+                                           required 
+                                           autofocus
+                                           placeholder="z.B. Tech Conference 2025"
+                                           oninput="generateSlug()">
+                                    <div class="form-text">Der öffentlich sichtbare Name des Events</div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="slug" class="form-label">URL-Slug *</label>
+                                    <input type="text" 
+                                           name="slug" 
+                                           id="slug" 
+                                           class="form-control" 
+                                           required
+                                           pattern="[a-z0-9\-]+"
+                                           placeholder="tech-conference-2025">
+                                    <div class="form-text">Für die URL: /slug</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Beschreibung</label>
+                            <textarea name="description" 
+                                      id="description" 
+                                      class="form-control" 
+                                      rows="3"
+                                      placeholder="Kurze Beschreibung des Events..."></textarea>
+                            <div class="form-text">Wird auf der Event-Seite angezeigt (optional)</div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="event_date" class="form-label">Event-Datum</label>
+                                    <input type="date" 
+                                           name="event_date" 
+                                           id="event_date" 
+                                           class="form-control">
+                                    <div class="form-text">Hauptdatum des Events (optional)</div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="location" class="form-label">Veranstaltungsort</label>
+                                    <input type="text" 
+                                           name="location" 
+                                           id="location" 
+                                           class="form-control"
+                                           placeholder="z.B. Berlin Congress Center">
+                                    <div class="form-text">Ort der Veranstaltung (optional)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ path('backoffice_events_index') }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Abbrechen
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-2"></i>Event erstellen
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Help Card -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="bi bi-question-circle me-2"></i>Hilfe & Tipps
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Event-Name</h6>
+                            <ul class="small mb-3">
+                                <li>Sollte eindeutig und aussagekräftig sein</li>
+                                <li>Wird in der öffentlichen Event-Liste angezeigt</li>
+                                <li>Kann später bearbeitet werden</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>URL-Slug</h6>
+                            <ul class="small mb-3">
+                                <li>Muss eindeutig sein</li>
+                                <li>Nur Kleinbuchstaben, Zahlen und Bindestriche</li>
+                                <li>Wird automatisch generiert, kann angepasst werden</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function generateSlug() {
+            const name = document.getElementById('name').value;
+            const slug = name
+                .toLowerCase()
+                .replace(/[^a-z0-9\s-]/g, '')  // Remove special chars
+                .replace(/\s+/g, '-')          // Replace spaces with hyphens
+                .replace(/-+/g, '-')           // Replace multiple hyphens with single
+                .replace(/^-|-$/g, '');        // Remove leading/trailing hyphens
+            
+            document.getElementById('slug').value = slug;
+        }
+    </script>
+{% endblock %}

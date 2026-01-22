@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\EventManagement;
 
+use App\Domain\Participation\Category;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -40,6 +43,13 @@ class Event
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    /**
+     * @var Collection<int, Category>
+     */
+    #[ORM\OneToMany(mappedBy: 'event', targetEntity: Category::class, cascade: ['persist', 'remove'])]
+    #[ORM\OrderBy(['sortOrder' => 'ASC', 'name' => 'ASC'])]
+    private Collection $categories;
+
     public function __construct(string $name, string $slug, ?string $description = null, ?\DateTime $eventDate = null, ?string $location = null)
     {
         $this->name = $name;
@@ -48,6 +58,7 @@ class Event
         $this->eventDate = $eventDate ? \DateTimeImmutable::createFromMutable($eventDate) : null;
         $this->location = $location;
         $this->createdAt = new \DateTimeImmutable();
+        $this->categories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -145,6 +156,35 @@ class Event
     public function allowsModeration(): bool
     {
         return $this->status->allowsModeration();
+    }
+
+    /**
+     * @return Collection<int, Category>
+     */
+    public function getCategories(): Collection
+    {
+        return $this->categories;
+    }
+
+    public function addCategory(Category $category): void
+    {
+        if (!$this->categories->contains($category)) {
+            $this->categories->add($category);
+            $category->setEvent($this);
+            $this->touch();
+        }
+    }
+
+    public function removeCategory(Category $category): void
+    {
+        if ($this->categories->removeElement($category)) {
+            $this->touch();
+        }
+    }
+
+    public function getCategoriesCount(): int
+    {
+        return $this->categories->count();
     }
 
     public function allowsExport(): bool

@@ -1,0 +1,307 @@
+{% extends 'backoffice/base.html.twig' %}
+
+{% block title %}Kategorien - {{ event.name }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3">Kategorien verwalten</h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="{{ path('backoffice_dashboard') }}">Dashboard</a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <a href="{{ path('backoffice_events_index') }}">Events</a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <a href="{{ path('backoffice_events_detail', {slug: event.slug}) }}">{{ event.name }}</a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">Kategorien</li>
+                        </ol>
+                    </nav>
+                </div>
+                <a href="{{ path('backoffice_categories_create', {slug: event.slug}) }}" 
+                   class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Neue Kategorie
+                </a>
+            </div>
+
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            {% for message in app.flashes('error') %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        Event: <strong>{{ event.name }}</strong>
+                        <span class="badge bg-{{ event.status.value == 'draft' ? 'secondary' : (event.status.value == 'active' ? 'success' : 'warning') }} ms-2">
+                            {{ event.status.value|upper }}
+                        </span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if categories is empty %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-tags fa-3x text-muted mb-3"></i>
+                            <h4>Noch keine Kategorien</h4>
+                            <p class="text-muted">Erstellen Sie die erste Kategorie für dieses Event.</p>
+                            <a href="{{ path('backoffice_categories_create', {slug: event.slug}) }}" 
+                               class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Erste Kategorie erstellen
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i>
+                                    <strong>{{ categories|length }}</strong> Kategorien definiert
+                                </div>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <button type="button" class="btn btn-outline-secondary" id="toggleReorder">
+                                    <i class="fas fa-sort"></i> Reihenfolge ändern
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-striped" id="categoriesTable">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40px"></th>
+                                        <th>Name</th>
+                                        <th>Beschreibung</th>
+                                        <th style="width: 100px">Beiträge</th>
+                                        <th style="width: 100px">Reihenfolge</th>
+                                        <th style="width: 120px" class="text-end">Aktionen</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="categoriesList">
+                                    {% for category in categories %}
+                                        <tr data-category-id="{{ category.id }}" class="category-row">
+                                            <td class="drag-handle text-center" style="cursor: grab; display: none;">
+                                                <i class="fas fa-grip-vertical text-muted"></i>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <span class="badge me-2" 
+                                                          style="background-color: {{ category.color }}; color: white; min-width: 20px; height: 20px;">
+                                                    </span>
+                                                    <strong>{{ category.name }}</strong>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {% if category.description %}
+                                                    <small class="text-muted">{{ category.description }}</small>
+                                                {% else %}
+                                                    <em class="text-muted">Keine Beschreibung</em>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary">
+                                                    {{ category.approvedPostsCount }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-light text-dark">
+                                                    {{ category.sortOrder }}
+                                                </span>
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="{{ path('backoffice_categories_edit', {slug: event.slug, id: category.id}) }}" 
+                                                       class="btn btn-outline-primary" title="Bearbeiten">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    {% if category.approvedPostsCount == 0 %}
+                                                        <button type="button" 
+                                                                class="btn btn-outline-danger" 
+                                                                data-bs-toggle="modal" 
+                                                                data-bs-target="#deleteModal{{ category.id }}" 
+                                                                title="Löschen">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    {% else %}
+                                                        <button type="button" 
+                                                                class="btn btn-outline-secondary disabled" 
+                                                                title="Kann nicht gelöscht werden (enthält Beiträge)">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modals -->
+{% for category in categories %}
+    {% if category.approvedPostsCount == 0 %}
+        <div class="modal fade" id="deleteModal{{ category.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ category.id }}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteModalLabel{{ category.id }}">Kategorie löschen</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Möchten Sie die Kategorie <strong>"{{ category.name }}"</strong> wirklich löschen?</p>
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Diese Aktion kann nicht rückgängig gemacht werden.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                        <form method="post" 
+                              action="{{ path('backoffice_categories_delete', {slug: event.slug, id: category.id}) }}" 
+                              class="d-inline" 
+                              data-turbo="false">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ category.id) }}">
+                            <button type="submit" class="btn btn-danger">Löschen</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endfor %}
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleButton = document.getElementById('toggleReorder');
+    const categoriesList = document.getElementById('categoriesList');
+    const dragHandles = document.querySelectorAll('.drag-handle');
+    let sortable = null;
+    let reorderMode = false;
+
+    if (toggleButton) {
+        toggleButton.addEventListener('click', function() {
+            reorderMode = !reorderMode;
+            
+            if (reorderMode) {
+                // Enable reorder mode
+                toggleButton.innerHTML = '<i class="fas fa-save"></i> Reihenfolge speichern';
+                toggleButton.className = 'btn btn-success';
+                
+                // Show drag handles
+                dragHandles.forEach(handle => handle.style.display = 'block');
+                
+                // Initialize Sortable
+                sortable = Sortable.create(categoriesList, {
+                    handle: '.drag-handle',
+                    animation: 150,
+                    ghostClass: 'sortable-ghost'
+                });
+                
+                // Add CSS for better visual feedback
+                const style = document.createElement('style');
+                style.innerHTML = `
+                    .sortable-ghost {
+                        opacity: 0.4;
+                        background-color: #f8f9fa;
+                    }
+                    .category-row:hover {
+                        background-color: #f8f9fa;
+                    }
+                `;
+                document.head.appendChild(style);
+                
+            } else {
+                // Save and disable reorder mode
+                saveOrder();
+            }
+        });
+    }
+    
+    function saveOrder() {
+        const categoryOrder = Array.from(categoriesList.children).map(row => 
+            parseInt(row.dataset.categoryId)
+        );
+        
+        fetch('{{ path('backoffice_categories_reorder', {slug: event.slug}) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                categoryOrder: categoryOrder
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Success feedback
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-success alert-dismissible fade show';
+                alert.innerHTML = `
+                    Reihenfolge erfolgreich gespeichert.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.querySelector('.container-fluid .row .col-12').insertBefore(
+                    alert, 
+                    document.querySelector('.card')
+                );
+                
+                // Reset mode
+                resetReorderMode();
+                
+                // Auto-dismiss alert
+                setTimeout(() => {
+                    if (alert.parentNode) alert.parentNode.removeChild(alert);
+                }, 3000);
+            } else {
+                alert('Fehler beim Speichern der Reihenfolge: ' + (data.error || 'Unbekannter Fehler'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Fehler beim Speichern der Reihenfolge.');
+        });
+    }
+    
+    function resetReorderMode() {
+        reorderMode = false;
+        toggleButton.innerHTML = '<i class="fas fa-sort"></i> Reihenfolge ändern';
+        toggleButton.className = 'btn btn-outline-secondary';
+        
+        // Hide drag handles
+        dragHandles.forEach(handle => handle.style.display = 'none');
+        
+        // Destroy sortable
+        if (sortable) {
+            sortable.destroy();
+            sortable = null;
+        }
+    }
+});
+</script>
+{% endblock %}
