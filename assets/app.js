@@ -8,4 +8,7 @@ import './styles/app.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap';
 
+// Import Bootstrap Icons
+import 'bootstrap-icons/font/bootstrap-icons.css';
+
 console.log('TopicMatcher MVP loaded! 🎯');
