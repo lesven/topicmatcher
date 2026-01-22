@@ -126,6 +126,37 @@
                             </a>
                         </div>
                     {% else %}
+                        <!-- Bulk Actions -->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <button type="button" id="selectAllBtn" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-check-square"></i> Alle auswählen
+                                </button>
+                                <button type="button" id="deselectAllBtn" class="btn btn-outline-secondary btn-sm" style="display: none;">
+                                    <i class="fas fa-square"></i> Auswahl aufheben
+                                </button>
+                            </div>
+                            
+                            <div id="bulkActionsBar" style="display: none;">
+                                <span id="selectedCount" class="me-3 text-muted">0 Events ausgewählt</span>
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-success btn-sm" data-action="activate">
+                                        <i class="fas fa-play"></i> Aktivieren
+                                    </button>
+                                    <button type="button" class="btn btn-warning btn-sm" data-action="close">
+                                        <i class="fas fa-stop"></i> Schließen
+                                    </button>
+                                    <button type="button" class="btn btn-secondary btn-sm" data-action="archive">
+                                        <i class="fas fa-archive"></i> Archivieren
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-sm" data-action="delete" 
+                                            onclick="return confirm('Ausgewählte Events wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.')">
+                                        <i class="fas fa-trash"></i> Löschen
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="row">
                             {% for event in events %}
                                 <div class="col-lg-6 mb-4">
@@ -148,7 +179,16 @@
                                                         {% endif %}
                                                     </span>
                                                 </div>
-                                                <small class="text-muted">{{ event.createdAt|date('d.m.Y') }}</small>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="form-check me-2">
+                                                        <input class="form-check-input event-checkbox" 
+                                                               type="checkbox" 
+                                                               value="{{ event.id }}" 
+                                                               id="event_{{ event.id }}">
+                                                        <label class="form-check-label" for="event_{{ event.id }}"></label>
+                                                    </div>
+                                                    <small class="text-muted">{{ event.createdAt|date('d.m.Y') }}</small>
+                                                </div>
                                             </div>
                                             
                                             <h5 class="card-title">{{ event.name }}</h5>
@@ -212,4 +252,132 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const eventCheckboxes = document.querySelectorAll('.event-checkbox');
+    const selectAllBtn = document.getElementById('selectAllBtn');
+    const deselectAllBtn = document.getElementById('deselectAllBtn');
+    const bulkActionsBar = document.getElementById('bulkActionsBar');
+    const selectedCount = document.getElementById('selectedCount');
+    const bulkActionBtns = document.querySelectorAll('[data-action]');
+    
+    // Update UI based on selection
+    function updateBulkActionsUI() {
+        const checkedBoxes = document.querySelectorAll('.event-checkbox:checked');
+        const count = checkedBoxes.length;
+        
+        if (count > 0) {
+            bulkActionsBar.style.display = 'block';
+            selectedCount.textContent = `${count} Event${count > 1 ? 's' : ''} ausgewählt`;
+            selectAllBtn.style.display = count === eventCheckboxes.length ? 'none' : 'inline-block';
+            deselectAllBtn.style.display = 'inline-block';
+        } else {
+            bulkActionsBar.style.display = 'none';
+            selectAllBtn.style.display = 'inline-block';
+            deselectAllBtn.style.display = 'none';
+        }
+    }
+    
+    // Select all events
+    selectAllBtn.addEventListener('click', function() {
+        eventCheckboxes.forEach(checkbox => checkbox.checked = true);
+        updateBulkActionsUI();
+    });
+    
+    // Deselect all events
+    deselectAllBtn.addEventListener('click', function() {
+        eventCheckboxes.forEach(checkbox => checkbox.checked = false);
+        updateBulkActionsUI();
+    });
+    
+    // Individual checkbox change
+    eventCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateBulkActionsUI);
+    });
+    
+    // Bulk action buttons
+    bulkActionBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const action = this.dataset.action;
+            const checkedBoxes = document.querySelectorAll('.event-checkbox:checked');
+            const eventIds = Array.from(checkedBoxes).map(cb => cb.value);
+            
+            if (eventIds.length === 0) {
+                alert('Keine Events ausgewählt.');
+                return;
+            }
+            
+            // Additional confirmation for destructive actions
+            if (action === 'delete') {
+                const confirmMessage = `Möchten Sie wirklich ${eventIds.length} Event(s) löschen? Diese Aktion kann nicht rückgängig gemacht werden.`;
+                if (!confirm(confirmMessage)) {
+                    return;
+                }
+            }
+            
+            // Disable button during request
+            this.disabled = true;
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verarbeite...';
+            
+            // Prepare form data
+            const formData = new FormData();
+            formData.append('action', action);
+            formData.append('_token', '{{ csrf_token('bulk_actions') }}');
+            eventIds.forEach(id => formData.append('eventIds[]', id));
+            
+            // Send request
+            fetch('{{ path('backoffice_events_bulk_actions') }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    showNotification(data.message, 'success');
+                    
+                    // Reload page to reflect changes
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    showNotification(data.message || 'Ein Fehler ist aufgetreten.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Netzwerkfehler beim Verarbeiten der Anfrage.', 'error');
+            })
+            .finally(() => {
+                // Re-enable button
+                this.disabled = false;
+                this.innerHTML = originalText;
+            });
+        });
+    });
+    
+    // Simple notification system
+    function showNotification(message, type) {
+        const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+        const alertHtml = `
+            <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        
+        const container = document.querySelector('.container-fluid');
+        const firstChild = container.firstElementChild;
+        firstChild.insertAdjacentHTML('afterend', alertHtml);
+    }
+});
+</script>
 {% endblock %}

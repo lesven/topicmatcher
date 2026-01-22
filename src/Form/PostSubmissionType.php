@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Form;
 
 use App\Domain\Participation\Category;
+use App\Domain\EventManagement\Event;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -26,6 +27,17 @@ class PostSubmissionType extends AbstractType
                 'choice_label' => 'name',
                 'placeholder' => 'Kategorie wählen...',
                 'label' => 'Kategorie',
+                'query_builder' => function ($repository) use ($options) {
+                    $qb = $repository->createQueryBuilder('c');
+                    
+                    if (isset($options['event']) && $options['event'] instanceof Event) {
+                        $qb->andWhere('c.event = :event')
+                           ->setParameter('event', $options['event']);
+                    }
+                    
+                    return $qb->orderBy('c.sortOrder', 'ASC')
+                             ->addOrderBy('c.name', 'ASC');
+                },
                 'constraints' => [
                     new Assert\NotBlank(message: 'Bitte wählen Sie eine Kategorie aus.')
                 ]
@@ -109,7 +121,9 @@ class PostSubmissionType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            // Configure your form options here
+            'event' => null,
         ]);
+        
+        $resolver->setAllowedTypes('event', ['null', Event::class]);
     }
 }

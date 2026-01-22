@@ -55,7 +55,9 @@ class EventController extends AbstractController
             throw $this->createNotFoundException('Beitrag erstellen nicht möglich');
         }
 
-        $form = $this->createForm(PostSubmissionType::class);
+        $form = $this->createForm(PostSubmissionType::class, null, [
+            'event' => $event
+        ]);
         $form->handleRequest($request);
 
         // DEBUG: Log request details
