@@ -60,48 +60,14 @@ class EventController extends AbstractController
         ]);
         $form->handleRequest($request);
 
-        // DEBUG: Log request details
-        if ($request->isMethod('POST')) {
-            $this->addFlash('info', 'POST Request empfangen');
-            $this->addFlash('info', 'Form submitted: ' . ($form->isSubmitted() ? 'ja' : 'nein'));
-            
-            if ($form->isSubmitted()) {
-                $this->addFlash('info', 'Form valid: ' . ($form->isValid() ? 'ja' : 'nein'));
-            }
-        }
+
 
         if ($form->isSubmitted()) {
-            $this->addFlash('info', 'Formular wurde eingereicht - prüfe Validierung...');
-            
             if (!$form->isValid()) {
-                // Debug form errors in detail
-                $errors = [];
-                foreach ($form->getErrors(true) as $error) {
-                    $errors[] = $error->getMessage();
-                }
-                $this->addFlash('error', 'Formular-Validierungsfehler: ' . implode(', ', $errors));
-                
-                // Also check field-specific errors
-                foreach ($form->all() as $fieldName => $field) {
-                    if (!$field->isValid()) {
-                        $fieldErrors = [];
-                        foreach ($field->getErrors() as $error) {
-                            $fieldErrors[] = $error->getMessage();
-                        }
-                        $this->addFlash('error', "Fehler in Feld '$fieldName': " . implode(', ', $fieldErrors));
-                    }
-                }
+                // Form has validation errors - they will be displayed in the template
             } else {
-                $this->addFlash('success', 'Formular ist valide - speichere Post...');
-                
                 try {
                     $data = $form->getData();
-                    $this->addFlash('info', 'Daten erhalten: ' . json_encode([
-                        'title' => $data['title'] ?? 'null',
-                        'category_id' => $data['category']?->getId() ?? 'null',
-                        'authorName' => $data['authorName'] ?? 'null',
-                        'authorEmail' => $data['authorEmail'] ?? 'null',
-                    ]));
                     
                     $post = new Post(
                         $event,
@@ -118,11 +84,9 @@ class EventController extends AbstractController
                     $this->entityManager->persist($post);
                     $this->entityManager->flush();
                     
-                    $this->addFlash('success', 'Post erfolgreich gespeichert - leite weiter...');
                     return $this->redirectToRoute('post_create_success', ['slug' => $slug]);
                 } catch (\Exception $e) {
-                    $this->addFlash('error', 'Fehler beim Speichern: ' . $e->getMessage());
-                    $this->addFlash('error', 'Stack Trace: ' . $e->getTraceAsString());
+                    $this->addFlash('error', 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.');
                 }
             }
         }
