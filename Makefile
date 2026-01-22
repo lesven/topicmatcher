@@ -17,22 +17,25 @@ help:
 	@echo ""
 
 # Deploy application (complete setup)
-deploy:
+deploy: down
 	@echo "🚀 Deploying TopicMatcher application..."
-	git pull
+	git pull || true
 	docker-compose build --no-cache
 	docker-compose up -d
 	@echo "⏳ Waiting for containers to be ready..."
-	sleep 10
-	@echo "🔧 Fixing git configuration and creating directories..."
+	sleep 15
+	@echo "🔧 Setting up environment..."
 	docker-compose exec app git config --global --add safe.directory /var/www || true
 	docker-compose exec app mkdir -p /var/www/vendor /var/www/var/cache /var/www/var/log || true
 	@echo "📦 Installing dependencies..."
-	docker-compose exec app composer install --optimize-autoloader
+	docker-compose exec app composer install --optimize-autoloader --no-interaction
 	@echo "🗃️ Running database migrations..."
-	docker-compose exec app php bin/console doctrine:migrations:migrate --no-interaction
+	docker-compose exec app php bin/console doctrine:migrations:migrate --no-interaction || true
 	@echo "🧹 Clearing cache..."
-	docker-compose exec app php bin/console cache:clear
+	docker-compose exec app php bin/console cache:clear || true
+	@echo "✅ Application deployed successfully!"
+	@echo "🌐 Application: http://localhost:8080"
+	@echo "🗄️  phpMyAdmin: http://localhost:8081"
 	@echo "✅ Application deployed successfully!"
 	@echo "🌐 Application: http://localhost:8080"
 	@echo "🗄️  phpMyAdmin: http://localhost:8081"
