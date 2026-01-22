@@ -44,6 +44,14 @@ class Category
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: Post::class)]
     private Collection $posts;
 
+    /**
+     * Erzeugt eine neue Kategorie für ein Event.
+     *
+     * @param Event $event Das zugehörige Event
+     * @param string $name Name der Kategorie
+     * @param string $color Farbcode der Kategorie (z.B. '#ff0000')
+     * @param string|null $description Optionale Beschreibung
+     */
     public function __construct(Event $event, string $name, string $color, ?string $description = null)
     {
         $this->event = $event;
@@ -54,57 +62,99 @@ class Category
         $this->posts = new ArrayCollection();
     }
 
+    /**
+     * Gibt die ID der Kategorie zurück.
+     *
+     * @return int|null Die ID oder null wenn nicht persistiert
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * Liefert den Namen der Kategorie.
+     */
     public function getName(): string
     {
         return $this->name;
     }
 
+    /**
+     * Setzt den Namen der Kategorie.
+     *
+     * @param string $name Neuer Name
+     */
     public function setName(string $name): void
     {
         $this->name = $name;
     }
 
+    /**
+     * Liefert die optionale Beschreibung der Kategorie.
+     */
     public function getDescription(): ?string
     {
         return $this->description;
     }
 
+    /**
+     * Setzt eine optionale Beschreibung.
+     *
+     * @param string|null $description Beschreibung oder null
+     */
     public function setDescription(?string $description): void
     {
         $this->description = $description;
     }
 
+    /**
+     * Liefert den Farbcode der Kategorie.
+     */
     public function getColor(): ?string
     {
         return $this->color;
     }
 
+    /**
+     * Setzt den Farbcode der Kategorie.
+     *
+     * @param string|null $color Farbcode oder null
+     */
     public function setColor(?string $color): void
     {
         $this->color = $color;
     }
 
+    /**
+     * Liefert die Sortierreihenfolge der Kategorie.
+     */
     public function getSortOrder(): int
     {
         return $this->sortOrder;
     }
 
+    /**
+     * Setzt die Sortierreihenfolge.
+     *
+     * @param int $sortOrder Neue Reihenfolge
+     */
     public function setSortOrder(int $sortOrder): void
     {
         $this->sortOrder = $sortOrder;
     }
 
+    /**
+     * Zeitpunkt der Erstellung der Kategorie.
+     */
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
 
     /**
+     * Liefert alle Posts dieser Kategorie.
+     *
      * @return Collection<int, Post>
      */
     public function getPosts(): Collection
@@ -112,6 +162,11 @@ class Category
         return $this->posts;
     }
 
+    /**
+     * Fügt einen Post zur Kategorie hinzu und setzt die Zuordnung am Post.
+     *
+     * @param Post $post Der hinzuzufügende Post
+     */
     public function addPost(Post $post): void
     {
         if (!$this->posts->contains($post)) {
@@ -120,6 +175,11 @@ class Category
         }
     }
 
+    /**
+     * Entfernt einen Post aus der Kategorie und löst die Zuordnung am Post.
+     *
+     * @param Post $post Zu entfernender Post
+     */
     public function removePost(Post $post): void
     {
         if ($this->posts->removeElement($post)) {
@@ -127,16 +187,27 @@ class Category
         }
     }
 
+    /**
+     * Gibt die Anzahl approbierter Posts in dieser Kategorie zurück.
+     */
     public function getApprovedPostsCount(): int
     {
         return $this->posts->filter(fn(Post $post) => $post->getStatus() === PostStatus::APPROVED)->count();
     }
 
+    /**
+     * Liefert das zugehörige Event.
+     */
     public function getEvent(): Event
     {
         return $this->event;
     }
 
+    /**
+     * Setzt das zugehörige Event.
+     *
+     * @param Event $event Neues Event
+     */
     public function setEvent(Event $event): void
     {
         $this->event = $event;

@@ -11,31 +11,49 @@ enum EventStatus: string
     case CLOSED = 'closed';
     case ARCHIVED = 'archived';
 
+    /**
+     * Prüft ob dieses Event-Status öffentlich sichtbar ist.
+     */
     public function isPubliclyVisible(): bool
     {
         return $this !== self::ARCHIVED;
     }
 
+    /**
+     * Prüft ob Einreichungen bei diesem Status erlaubt sind.
+     */
     public function allowsSubmissions(): bool
     {
         return $this === self::ACTIVE;
     }
 
+    /**
+     * Prüft ob neue Posts in diesem Status angelegt werden dürfen.
+     */
     public function allowsNewPosts(): bool
     {
         return $this === self::ACTIVE;
     }
 
+    /**
+     * Prüft ob Interessenbekundungen in diesem Status erlaubt sind.
+     */
     public function allowsInterests(): bool
     {
         return $this === self::ACTIVE;
     }
 
+    /**
+     * Prüft ob Moderation in diesem Status erlaubt ist.
+     */
     public function allowsModeration(): bool
     {
         return $this === self::ACTIVE;
     }
 
+    /**
+     * Prüft ob ein Export in diesem Status sinnvoll/erlaubt ist.
+     */
     public function allowsExport(): bool
     {
         return in_array($this, [self::CLOSED, self::ARCHIVED]);

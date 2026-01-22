@@ -57,6 +57,15 @@ class Event
     #[ORM\OrderBy(['sortOrder' => 'ASC', 'name' => 'ASC'])]
     private Collection $categories;
 
+    /**
+     * Erstellt ein neues Event.
+     *
+     * @param string $name Name des Events
+     * @param string $slug URL/Slug des Events
+     * @param string|null $description Optionale Beschreibung
+     * @param \DateTime|null $eventDate Optionales Veranstaltungsdatum (mutable)
+     * @param string|null $location Optionaler Ort
+     */
     public function __construct(string $name, string $slug, ?string $description = null, ?\DateTime $eventDate = null, ?string $location = null)
     {
         $this->name = $name;
@@ -68,59 +77,98 @@ class Event
         $this->categories = new ArrayCollection();
     }
 
+    /**
+     * Gibt die ID des Events zurück.
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * Liefert den Namen des Events.
+     */
     public function getName(): string
     {
         return $this->name;
     }
 
+    /**
+     * Setzt den Namen des Events und aktualisiert den Zeitstempel.
+     *
+     * @param string $name Neuer Name
+     */
     public function setName(string $name): void
     {
         $this->name = $name;
         $this->touch();
     }
 
+    /**
+     * Liefert die optionale Beschreibung des Events.
+     */
     public function getDescription(): ?string
     {
         return $this->description;
     }
 
+    /**
+     * Setzt die Beschreibung und aktualisiert den Zeitstempel.
+     *
+     * @param string|null $description Neue Beschreibung
+     */
     public function setDescription(?string $description): void
     {
         $this->description = $description;
         $this->touch();
     }
 
+    /**
+     * Liefert den Slug des Events.
+     */
     public function getSlug(): string
     {
         return $this->slug;
     }
 
+    /**
+     * Setzt den Slug und aktualisiert den Zeitstempel.
+     *
+     * @param string $slug Neuer Slug
+     */
     public function setSlug(string $slug): void
     {
         $this->slug = $slug;
         $this->touch();
     }
 
+    /**
+     * Liefert den aktuellen Status des Events.
+     */
     public function getStatus(): EventStatus
     {
         return $this->status;
     }
 
+    /**
+     * Liefert das Veranstaltungsdatum oder null.
+     */
     public function getEventDate(): ?\DateTimeImmutable
     {
         return $this->eventDate;
     }
 
+    /**
+     * Liefert den Ort des Events oder null.
+     */
     public function getLocation(): ?string
     {
         return $this->location;
     }
 
+    /**
+     * Aktiviert das Event wenn es sich im Entwurfsstatus befindet.
+     */
     public function activate(): void
     {
         if ($this->status === EventStatus::DRAFT) {
@@ -129,6 +177,9 @@ class Event
         }
     }
 
+    /**
+     * Schließt das Event, sofern es aktiv ist.
+     */
     public function close(): void
     {
         if ($this->status === EventStatus::ACTIVE) {
@@ -137,6 +188,9 @@ class Event
         }
     }
 
+    /**
+     * Archiviert das Event, wenn es geschlossen wurde.
+     */
     public function archive(): void
     {
         if ($this->status === EventStatus::CLOSED) {
@@ -145,21 +199,33 @@ class Event
         }
     }
 
+    /**
+     * Prüft ob das Event öffentlich sichtbar ist (Statusabhängig).
+     */
     public function isPubliclyVisible(): bool
     {
         return $this->status->isPubliclyVisible();
     }
 
+    /**
+     * Prüft ob Einreichungen für dieses Event erlaubt sind.
+     */
     public function allowsSubmissions(): bool
     {
         return $this->status->allowsSubmissions();
     }
 
+    /**
+     * Prüft ob Interessenbekundungen für dieses Event erlaubt sind.
+     */
     public function allowsInterests(): bool
     {
         return $this->status->allowsInterests();
     }
 
+    /**
+     * Prüft ob Moderation für dieses Event erlaubt ist.
+     */
     public function allowsModeration(): bool
     {
         return $this->status->allowsModeration();
@@ -173,6 +239,11 @@ class Event
         return $this->categories;
     }
 
+    /**
+     * Fügt eine Kategorie zum Event hinzu und setzt die Rückreferenz.
+     *
+     * @param Category $category Zu ergänzende Kategorie
+     */
     public function addCategory(Category $category): void
     {
         if (!$this->categories->contains($category)) {
@@ -182,6 +253,11 @@ class Event
         }
     }
 
+    /**
+     * Entfernt eine Kategorie vom Event.
+     *
+     * @param Category $category Zu entfernende Kategorie
+     */
     public function removeCategory(Category $category): void
     {
         if ($this->categories->removeElement($category)) {
@@ -189,42 +265,70 @@ class Event
         }
     }
 
+    /**
+     * Anzahl der Kategorien dieses Events.
+     */
     public function getCategoriesCount(): int
     {
         return $this->categories->count();
     }
 
+    /**
+     * Prüft ob ein Export für dieses Event erlaubt ist.
+     */
     public function allowsExport(): bool
     {
         return $this->status->allowsExport();
     }
 
+    /**
+     * Zeitpunkt der Erstellung des Events.
+     */
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
 
+    /**
+     * Zeitpunkt der letzten Aktualisierung oder null.
+     */
     public function getUpdatedAt(): ?\DateTimeImmutable
     {
         return $this->updatedAt;
     }
 
+    /**
+     * Prüft ob dieses Event als Template markiert ist.
+     */
     public function isTemplate(): bool
     {
         return $this->isTemplate;
     }
 
+    /**
+     * Markiert oder entfernt das Template-Flag und aktualisiert Zeitstempel.
+     *
+     * @param bool $isTemplate true wenn Template
+     */
     public function setTemplate(bool $isTemplate): void
     {
         $this->isTemplate = $isTemplate;
         $this->touch();
     }
 
+    /**
+     * Liefert die Quelle dieses Templates oder null.
+     */
     public function getTemplateSource(): ?Event
     {
         return $this->templateSource;
     }
 
+    /**
+     * Setzt die Template-Quelle dieses Events.
+     *
+     * @param Event|null $templateSource Quell-Event oder null
+     */
     public function setTemplateSource(?Event $templateSource): void
     {
         $this->templateSource = $templateSource;
@@ -272,6 +376,9 @@ class Event
         return $this->status === EventStatus::DRAFT;
     }
 
+    /**
+     * Aktualisiert den Zeitstempel bei Änderungen.
+     */
     private function touch(): void
     {
         $this->updatedAt = new \DateTimeImmutable();

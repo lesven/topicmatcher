@@ -77,6 +77,19 @@ class Post
     #[ORM\OneToMany(mappedBy: 'post', targetEntity: Interest::class, cascade: ['persist', 'remove'])]
     private Collection $interests;
 
+    /**
+     * Erstellt einen neuen Post.
+     *
+     * @param Event $event Zugehöriges Event
+     * @param Category $category Zugehörige Kategorie
+     * @param string $title Titel des Posts
+     * @param string|null $content Inhalt des Posts
+     * @param string|null $authorName Anzeigename des Autors
+     * @param string $authorEmail E-Mail des Autors
+     * @param bool $showAuthorName Sichtbarkeit des Namens
+     * @param string $ipAddress IP-Adresse der Erstellung
+     * @param string $userAgent User-Agent String
+     */
     public function __construct(
         Event $event,
         Category $category,
@@ -103,75 +116,127 @@ class Post
         $this->interests = new ArrayCollection();
     }
 
+    /**
+     * Gibt die ID des Posts zurück.
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * Liefert das zugehörige Event.
+     */
     public function getEvent(): Event
     {
         return $this->event;
     }
 
+    /**
+     * Liefert den Titel des Posts.
+     */
     public function getTitle(): string
     {
         return $this->title;
     }
 
+    /**
+     * Liefert den Inhalt des Posts.
+     */
     public function getContent(): ?string
     {
         return $this->content;
     }
 
+    /**
+     * Setzt den Inhalt und aktualisiert den Zeitstempel.
+     *
+     * @param string|null $content Neuer Inhalt
+     */
     public function setContent(?string $content): void
     {
         $this->content = $content;
         $this->touch();
     }
 
+    /**
+     * Liefert den Namen des Autors (wenn sichtbar).
+     */
     public function getAuthorName(): ?string
     {
         return $this->authorName;
     }
 
+    /**
+     * Setzt den Namen des Autors und aktualisiert den Zeitstempel.
+     *
+     * @param string|null $authorName Neuer Autorname
+     */
     public function setAuthorName(?string $authorName): void
     {
         $this->authorName = $authorName;
         $this->touch();
     }
 
+    /**
+     * Liefert die (private) E-Mail-Adresse des Autors.
+     */
     public function getAuthorEmail(): string
     {
         return $this->authorEmail;
     }
 
+    /**
+     * Setzt die E-Mail-Adresse des Autors und aktualisiert den Zeitstempel.
+     *
+     * @param string $authorEmail Neue E-Mail
+     */
     public function setAuthorEmail(string $authorEmail): void
     {
         $this->authorEmail = $authorEmail;
         $this->touch();
     }
 
+    /**
+     * Gibt zurück ob der Autorenname angezeigt wird.
+     */
     public function showAuthorName(): bool
     {
         return $this->showAuthorName;
     }
 
+    /**
+     * Setzt die Sichtbarkeit des Autorennamens und aktualisiert den Zeitstempel.
+     *
+     * @param bool $showAuthorName Sichtbarkeit
+     */
     public function setShowAuthorName(bool $showAuthorName): void
     {
         $this->showAuthorName = $showAuthorName;
         $this->touch();
     }
 
+    /**
+     * Gibt zurück ob die Datenschutzbedingungen akzeptiert sind.
+     */
     public function isPrivacyAccepted(): bool
     {
         return $this->privacyAccepted;
     }
 
+    /**
+     * Liefert den aktuellen Moderationsstatus des Posts.
+     */
     public function getStatus(): PostStatus
     {
         return $this->status;
     }
 
+    /**
+     * Genehmigt den Post durch einen Moderator.
+     *
+     * @param string $moderatorName Name des Moderators
+     */
     public function approve(string $moderatorName): void
     {
         if ($this->status->canBeModerated()) {
@@ -182,6 +247,12 @@ class Post
         }
     }
 
+    /**
+     * Verwirft den Post durch einen Moderator und speichert optional Notizen.
+     *
+     * @param string $moderatorName Name des Moderators
+     * @param string|null $notes Optionale Moderationsnotizen
+     */
     public function reject(string $moderatorName, ?string $notes = null): void
     {
         if ($this->status->canBeModerated()) {
@@ -193,68 +264,111 @@ class Post
         }
     }
 
+    /**
+     * Archviert den Post.
+     */
     public function archive(): void
     {
         $this->status = PostStatus::ARCHIVED;
         $this->touch();
     }
 
+    /**
+     * Prüft ob der Post öffentlich sichtbar ist (abhängig vom Status).
+     */
     public function isPubliclyVisible(): bool
     {
         return $this->status->isPubliclyVisible();
     }
 
+    /**
+     * Prüft ob der Post genehmigt wurde.
+     */
     public function isApproved(): bool
     {
         return $this->status === PostStatus::APPROVED;
     }
 
+    /**
+     * Zeitpunkt der Erstellung des Posts.
+     */
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
 
+    /**
+     * Zeitpunkt der letzten Änderung oder null.
+     */
     public function getUpdatedAt(): ?\DateTimeImmutable
     {
         return $this->updatedAt;
     }
 
+    /**
+     * Zeitpunkt der Moderation oder null.
+     */
     public function getModeratedAt(): ?\DateTimeImmutable
     {
         return $this->moderatedAt;
     }
 
+    /**
+     * Name des Moderators, der die Aktion durchgeführt hat (oder null).
+     */
     public function getModeratedBy(): ?string
     {
         return $this->moderatedBy;
     }
 
+    /**
+     * Liefert Moderationsnotizen oder null.
+     */
     public function getModerationNotes(): ?string
     {
         return $this->moderationNotes;
     }
 
+    /**
+     * Setzt Moderationsnotizen und aktualisiert den Zeitstempel.
+     *
+     * @param string|null $notes Notizen oder null
+     */
     public function setModerationNotes(?string $notes): void
     {
         $this->moderationNotes = $notes;
         $this->touch();
     }
 
+    /**
+     * Liefert die IP-Adresse des Posts (optional).
+     */
     public function getIpAddress(): ?string
     {
         return $this->ipAddress;
     }
 
+    /**
+     * Liefert den User-Agent der Erstellung (optional).
+     */
     public function getUserAgent(): ?string
     {
         return $this->userAgent;
     }
 
+    /**
+     * Liefert die Kategorie dieses Posts.
+     */
     public function getCategory(): Category
     {
         return $this->category;
     }
 
+    /**
+     * Setzt die Kategorie dieses Posts.
+     *
+     * @param Category|null $category Neue Kategorie oder null
+     */
     public function setCategory(?Category $category): void
     {
         $this->category = $category;
@@ -268,6 +382,11 @@ class Post
         return $this->interests;
     }
 
+    /**
+     * Fügt eine Interessenbekundung hinzu und verknüpft sie mit diesem Post.
+     *
+     * @param Interest $interest Interessensobjekt
+     */
     public function addInterest(Interest $interest): void
     {
         if (!$this->interests->contains($interest)) {
@@ -276,6 +395,11 @@ class Post
         }
     }
 
+    /**
+     * Entfernt eine Interessenbekundung und löst die Zuordnung.
+     *
+     * @param Interest $interest Zu entfernendes Interesse
+     */
     public function removeInterest(Interest $interest): void
     {
         if ($this->interests->removeElement($interest)) {
@@ -283,6 +407,9 @@ class Post
         }
     }
 
+    /**
+     * Gibt die Anzahl Interessenbekundungen für diesen Post zurück.
+     */
     public function getInterestCount(): int
     {
         return $this->interests->count();
@@ -298,6 +425,9 @@ class Post
         );
     }
 
+    /**
+     * Aktualisiert den Zeitstempel für Änderungen.
+     */
     private function touch(): void
     {
         $this->updatedAt = new \DateTimeImmutable();
