@@ -123,12 +123,12 @@ class Post
         $this->touch();
     }
 
-    public function getAuthorName(): string
+    public function getAuthorName(): ?string
     {
         return $this->authorName;
     }
 
-    public function setAuthorName(string $authorName): void
+    public function setAuthorName(?string $authorName): void
     {
         $this->authorName = $authorName;
         $this->touch();
