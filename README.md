@@ -273,7 +273,7 @@ Nach der Veranstaltung können die gesammelten Kontakte **exportiert** und manue
 
 ### 6.1 Technologie (verbindlich)
 
-- **Backend:** PHP 8.2+, Symfony 6.4 LTS  
+- **Backend:** PHP 8.2+, Symfony 7.4 LTS  
 - **Rendering:** Twig (server-side), Monolith  
 - **Datenbank:** MariaDB 10.6+  
 - **ORM:** Doctrine ORM + Migrations  
