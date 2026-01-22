@@ -1,19 +1,8 @@
-{% extends 'base.html.twig' %}
+{% extends 'minimal_layout.html.twig' %}
 
 {% block title %}{{ event.name }} - {{ parent() }}{% endblock %}
 
 {% block body %}
-    <div class="row">
-        <div class="col-12">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ path('homepage') }}">Events</a></li>
-                    <li class="breadcrumb-item active">{{ event.name }}</li>
-                </ol>
-            </nav>
-        </div>
-    </div>
-
     <div class="row">
         <div class="col-lg-8 mb-4">
             <div class="card">
