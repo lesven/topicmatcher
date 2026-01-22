@@ -21,6 +21,13 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_ADMIN')]
 class EventManagementController extends AbstractController
 {
+    /**
+     * Constructor - injects repositories and entity manager.
+     *
+     * @param EventRepository $eventRepository Repositorium für Events
+     * @param PostRepository $postRepository Repositorium für Posts
+     * @param EntityManagerInterface $entityManager Entity Manager
+     */
     public function __construct(
         private readonly EventRepository $eventRepository,
         private readonly PostRepository $postRepository,
@@ -29,6 +36,12 @@ class EventManagementController extends AbstractController
     }
 
     #[Route('/', name: 'backoffice_events_index')]
+    /**
+     * Zeigt die Event-Übersicht mit optionalem Statusfilter.
+     *
+     * @param Request $request Request mit optionalem Query-Parameter "status"
+     * @return Response Seite mit Eventliste und Statistiken
+     */
     public function index(Request $request): Response
     {
         $status = $request->query->get('status');
@@ -57,6 +70,12 @@ class EventManagementController extends AbstractController
     }
 
     #[Route('/create', name: 'backoffice_events_create', methods: ['GET', 'POST'])]
+    /**
+     * Erstellt ein neues Event (Formular GET/POST).
+     *
+     * @param Request $request Request mit Formulardaten
+     * @return Response Rendered Template oder Redirect nach Erstellung
+     */
     public function create(Request $request): Response
     {
         if ($request->isMethod('POST')) {
@@ -101,6 +120,12 @@ class EventManagementController extends AbstractController
     }
 
     #[Route('/{slug}', name: 'backoffice_events_detail')]
+    /**
+     * Zeigt Detailansicht eines Events.
+     *
+     * @param string $slug Event-Slug
+     * @return Response Detailseite des Events
+     */
     public function detail(string $slug): Response
     {
         $event = $this->eventRepository->findOneBySlug($slug);
@@ -124,6 +149,13 @@ class EventManagementController extends AbstractController
     }
 
     #[Route('/{slug}/posts', name: 'backoffice_events_posts')]
+    /**
+     * Zeigt Posts eines Events mit optionalem Statusfilter.
+     *
+     * @param string $slug Event-Slug
+     * @param Request $request Optionaler Statusfilter als Query-Parameter
+     * @return Response Seite mit den Posts
+     */
     public function posts(string $slug, Request $request): Response
     {
         $event = $this->eventRepository->findOneBySlug($slug);
@@ -158,6 +190,13 @@ class EventManagementController extends AbstractController
     }
 
     #[Route('/{slug}/activate', name: 'backoffice_events_activate', methods: ['POST'])]
+    /**
+     * Aktiviert ein Event (POST, CSRF-geschützt).
+     *
+     * @param Request $request Request mit CSRF-Token
+     * @param string $slug Event-Slug
+     * @return Response Redirect zur Event-Detailseite
+     */
     public function activate(Request $request, string $slug): Response
     {
         $event = $this->eventRepository->findOneBySlug($slug);
@@ -184,6 +223,13 @@ class EventManagementController extends AbstractController
     }
 
     #[Route('/{slug}/close', name: 'backoffice_events_close', methods: ['POST'])]
+    /**
+     * Schließt ein aktives Event (POST).
+     *
+     * @param Request $request Request mit CSRF-Token
+     * @param string $slug Event-Slug
+     * @return Response Redirect zur Event-Detailseite
+     */
     public function close(Request $request, string $slug): Response
     {
         $event = $this->eventRepository->findOneBySlug($slug);
@@ -210,6 +256,13 @@ class EventManagementController extends AbstractController
     }
 
     #[Route('/{slug}/archive', name: 'backoffice_events_archive', methods: ['POST'])]
+    /**
+     * Archiviert ein geschlossenes Event (POST).
+     *
+     * @param Request $request Request mit CSRF-Token
+     * @param string $slug Event-Slug
+     * @return Response Redirect zur Event-Detailseite
+     */
     public function archive(Request $request, string $slug): Response
     {
         $event = $this->eventRepository->findOneBySlug($slug);
@@ -236,6 +289,12 @@ class EventManagementController extends AbstractController
     }
 
     #[Route('/bulk-actions', name: 'backoffice_events_bulk_actions', methods: ['POST'])]
+    /**
+     * Führt Bulk-Aktionen auf mehreren Events aus (aktivieren, schließen, archivieren, löschen).
+     *
+     * @param Request $request POST-Request mit 'action' und 'eventIds'
+     * @return JsonResponse Ergebnis der Aktion
+     */
     public function bulkActions(Request $request): JsonResponse
     {
         $action = $request->request->get('action');
@@ -334,6 +393,11 @@ class EventManagementController extends AbstractController
     }
 
     #[Route('/templates', name: 'backoffice_events_templates', methods: ['GET'])]
+    /**
+     * Listet Templates und reguläre Events für die Template-Verwaltung.
+     *
+     * @return Response Template-Übersicht
+     */
     public function templates(): Response
     {
         $templates = $this->eventRepository->findTemplates();
@@ -346,6 +410,13 @@ class EventManagementController extends AbstractController
     }
 
     #[Route('/{slug}/duplicate', name: 'backoffice_events_duplicate', methods: ['GET', 'POST'])]
+    /**
+     * Dupliziert ein Event (mit optionaler Kopie der Kategorien) oder erstellt ein Template.
+     *
+     * @param Request $request Request mit Duplikationsdaten
+     * @param string $slug Slug des Quell-Events
+     * @return Response Rendered Template oder Redirect nach Duplikation
+     */
     public function duplicate(Request $request, string $slug): Response
     {
         $sourceEvent = $this->eventRepository->findOneBySlug($slug);
@@ -392,8 +463,13 @@ class EventManagementController extends AbstractController
         ]);
     }
 
-    #[Route('/{slug}/toggle-template', name: 'backoffice_events_toggle_template', methods: ['POST'])]
-    public function toggleTemplate(Request $request, string $slug): Response
+    #[Route('/{slug}/toggle-template', name: 'backoffice_events_toggle_template', methods: ['POST'])]    /**
+     * Schaltet das Template-Flag eines Events um (POST).
+     *
+     * @param Request $request Request mit CSRF-Token
+     * @param string $slug Event-Slug
+     * @return Response Redirect zur Event-Detailseite
+     */    public function toggleTemplate(Request $request, string $slug): Response
     {
         $event = $this->eventRepository->findOneBySlug($slug);
         if (!$event) {

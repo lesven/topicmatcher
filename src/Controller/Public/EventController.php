@@ -21,6 +21,16 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class EventController extends AbstractController
 {
+    /**
+     * Constructor - injects query services, interest service, repositories and QR code service.
+     *
+     * @param EventQueryService $eventQueryService Event query service
+     * @param PostQueryService $postQueryService Post query service
+     * @param InterestSubmissionService $interestService Interest submission service
+     * @param EntityManagerInterface $entityManager Entity manager
+     * @param PostRepository $postRepository Post repository
+     * @param QrCodeService $qrCodeService QR code generation service
+     */
     public function __construct(
         private readonly EventQueryService $eventQueryService,
         private readonly PostQueryService $postQueryService,
@@ -32,6 +42,12 @@ class EventController extends AbstractController
     }
 
     #[Route('/{slug}', name: 'event_show', requirements: ['slug' => '[a-z0-9\-]+'])]
+    /**
+     * Zeigt ein öffentliches Event mit genehmigten Posts und generierten QR-Codes.
+     *
+     * @param string $slug Event-Slug
+     * @return Response Event-Seite
+     */
     public function show(string $slug): Response
     {
         $event = $this->eventQueryService->findBySlug($slug);
@@ -61,6 +77,13 @@ class EventController extends AbstractController
     }
 
     #[Route('/{slug}/create', name: 'post_create', requirements: ['slug' => '[a-z0-9\-]+'], methods: ['GET', 'POST'])]
+    /**
+     * Erzeugt einen neuen Post via Formular (GET/POST).
+     *
+     * @param string $slug Event-Slug
+     * @param Request $request Request mit Formulardaten
+     * @return Response Form oder Redirect zur Success-Seite
+     */
     public function createPost(string $slug, Request $request): Response
     {
         $event = $this->eventQueryService->findBySlug($slug);
@@ -112,6 +135,12 @@ class EventController extends AbstractController
     }
 
     #[Route('/{slug}/create/success', name: 'post_create_success', requirements: ['slug' => '[a-z0-9\-]+'])]
+    /**
+     * Seite nach erfolgreicher Erstellung eines Posts.
+     *
+     * @param string $slug Event-Slug
+     * @return Response Success-Template
+     */
     public function createPostSuccess(string $slug): Response
     {
         $event = $this->eventQueryService->findBySlug($slug);
@@ -126,6 +155,13 @@ class EventController extends AbstractController
     }
 
     #[Route('/{slug}/post/{id}', name: 'post_show', requirements: ['slug' => '[a-z0-9\-]+', 'id' => '\d+'])]
+    /**
+     * Zeigt einen einzelnen Post (noch nicht implementiert, leitet derzeit zurück zum Event).
+     *
+     * @param string $slug Event-Slug
+     * @param int $id Post-ID
+     * @return Response Redirect oder Post-Seite
+     */
     public function showPost(string $slug, int $id): Response
     {
         $event = $this->eventQueryService->findBySlug($slug);
@@ -140,6 +176,14 @@ class EventController extends AbstractController
     }
 
     #[Route('/{slug}/post/{id}/interest', name: 'post_interest', requirements: ['slug' => '[a-z0-9\-]+', 'id' => '\d+'], methods: ['GET', 'POST'])]
+    /**
+     * Form zur Registrierung von Interessen an einem Post (GET/POST).
+     *
+     * @param string $slug Event-Slug
+     * @param int $id Post-ID
+     * @param Request $request Request mit Formulardaten
+     * @return Response Form oder Redirect zur Success-Seite
+     */
     public function submitInterest(string $slug, int $id, Request $request): Response
     {
         $event = $this->eventQueryService->findBySlug($slug);
@@ -192,6 +236,13 @@ class EventController extends AbstractController
     }
 
     #[Route('/{slug}/post/{id}/interest/success', name: 'post_interest_success', requirements: ['slug' => '[a-z0-9\-]+', 'id' => '\d+'])]
+    /**
+     * Seite nach erfolgreicher Interessenbekundung.
+     *
+     * @param string $slug Event-Slug
+     * @param int $id Post-ID
+     * @return Response Success-Template
+     */
     public function submitInterestSuccess(string $slug, int $id): Response
     {
         $event = $this->eventQueryService->findBySlug($slug);

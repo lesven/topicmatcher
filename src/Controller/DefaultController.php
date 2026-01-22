@@ -11,12 +11,22 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class DefaultController extends AbstractController
 {
+    /**
+     * Constructor - injects EventQueryService.
+     *
+     * @param EventQueryService $eventQueryService Service to query events
+     */
     public function __construct(
         private readonly EventQueryService $eventQueryService
     ) {
     }
 
     #[Route('/', name: 'homepage')]
+    /**
+     * Startseite mit öffentlich sichtbaren Events.
+     *
+     * @return Response Rendered homepage template
+     */
     public function index(): Response
     {
         $events = $this->eventQueryService->findPubliclyVisible();
@@ -27,6 +37,11 @@ class DefaultController extends AbstractController
     }
 
     #[Route('/default', name: 'app_default_index')]
+    /**
+     * Legacy route for default controller (kept for compatibility).
+     *
+     * @return Response Rendered legacy template
+     */
     public function legacy(): Response
     {
         return $this->render('default/index.html.twig', [

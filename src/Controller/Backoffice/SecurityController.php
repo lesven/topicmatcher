@@ -13,6 +13,12 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 class SecurityController extends AbstractController
 {
     #[Route('/login', name: 'backoffice_login')]
+    /**
+     * Login-Seite für das Backoffice.
+     *
+     * @param AuthenticationUtils $authenticationUtils Hilft beim Abrufen letzter Login-Daten
+     * @return Response Login-Template oder Redirect wenn bereits eingeloggt
+     */
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
         if ($this->getUser()) {
@@ -31,6 +37,9 @@ class SecurityController extends AbstractController
     }
 
     #[Route('/logout', name: 'backoffice_logout')]
+    /**
+     * Logout-Endpoint (wird von Symfony Firewall abgefangen).
+     */
     public function logout(): void
     {
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');

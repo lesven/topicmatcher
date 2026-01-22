@@ -20,6 +20,13 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_ADMIN')]
 class CategoryManagementController extends AbstractController
 {
+    /**
+     * Constructor - injects repositories and entity manager for categories.
+     *
+     * @param EventRepository $eventRepository Event repository
+     * @param CategoryRepository $categoryRepository Category repository
+     * @param EntityManagerInterface $entityManager Entity manager
+     */
     public function __construct(
         private readonly EventRepository $eventRepository,
         private readonly CategoryRepository $categoryRepository,
@@ -27,6 +34,12 @@ class CategoryManagementController extends AbstractController
     ) {}
 
     #[Route('', name: 'backoffice_categories_index', methods: ['GET'])]
+    /**
+     * Listet Kategorien eines Events.
+     *
+     * @param string $slug Event-Slug
+     * @return Response Seite mit Kategorien
+     */
     public function index(string $slug): Response
     {
         $event = $this->getEventBySlug($slug);
@@ -39,6 +52,13 @@ class CategoryManagementController extends AbstractController
     }
 
     #[Route('/create', name: 'backoffice_categories_create', methods: ['GET', 'POST'])]
+    /**
+     * Erstellt eine neue Kategorie für ein Event (Formular GET/POST).
+     *
+     * @param Request $request Request mit Formulardaten
+     * @param string $slug Event-Slug
+     * @return Response Rendered Template oder Redirect bei Erfolg
+     */
     public function create(Request $request, string $slug): Response
     {
         $event = $this->getEventBySlug($slug);
@@ -79,6 +99,14 @@ class CategoryManagementController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'backoffice_categories_edit', methods: ['GET', 'POST'])]
+    /**
+     * Bearbeitet eine bestehende Kategorie (Formular GET/POST).
+     *
+     * @param Request $request Request mit Formulardaten
+     * @param string $slug Event-Slug
+     * @param int $id Kategorie-ID
+     * @return Response Rendered Template oder Redirect bei Erfolg
+     */
     public function edit(Request $request, string $slug, int $id): Response
     {
         $event = $this->getEventBySlug($slug);
@@ -113,6 +141,14 @@ class CategoryManagementController extends AbstractController
     }
 
     #[Route('/{id}/delete', name: 'backoffice_categories_delete', methods: ['POST'])]
+    /**
+     * Löscht eine Kategorie wenn keine genehmigten Posts vorhanden sind (POST, CSRF-geschützt).
+     *
+     * @param Request $request Request mit CSRF-Token
+     * @param string $slug Event-Slug
+     * @param int $id Kategorie-ID
+     * @return Response Redirect zur Kategorie-Übersicht
+     */
     public function delete(Request $request, string $slug, int $id): Response
     {
         $event = $this->getEventBySlug($slug);
@@ -141,6 +177,13 @@ class CategoryManagementController extends AbstractController
     }
 
     #[Route('/reorder', name: 'backoffice_categories_reorder', methods: ['POST'])]
+    /**
+     * Empfängt neue Sortierreihenfolge für Kategorien (JSON payload) und aktualisiert SortOrder.
+     *
+     * @param Request $request JSON-Request mit 'categoryOrder'
+     * @param string $slug Event-Slug
+     * @return Response JSON-Antwort
+     */
     public function reorder(Request $request, string $slug): Response
     {
         $event = $this->getEventBySlug($slug);
@@ -166,6 +209,12 @@ class CategoryManagementController extends AbstractController
         }
     }
 
+    /**
+     * Hilfsfunktion: Liefert ein Event anhand des Slugs oder wirft 404.
+     *
+     * @param string $slug Event-Slug
+     * @return Event Gefundenes Event
+     */
     private function getEventBySlug(string $slug): Event
     {
         $event = $this->eventRepository->findOneBySlug($slug);
@@ -176,6 +225,13 @@ class CategoryManagementController extends AbstractController
         return $event;
     }
 
+    /**
+     * Hilfsfunktion: Liefert eine Kategorie anhand der ID und prüft Zugehörigkeit zum Event.
+     *
+     * @param int $id Kategorie-ID
+     * @param Event $event Zugehöriges Event
+     * @return Category Gefundene Kategorie
+     */
     private function getCategoryById(int $id, Event $event): Category
     {
         $category = $this->categoryRepository->find($id);

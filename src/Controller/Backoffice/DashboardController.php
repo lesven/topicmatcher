@@ -14,12 +14,22 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_MODERATOR')]
 class DashboardController extends AbstractController
 {
+    /**
+     * Constructor - injects ModerationQueryService.
+     *
+     * @param ModerationQueryService $moderationQueryService Service für Moderationsstatistiken
+     */
     public function __construct(
         private readonly ModerationQueryService $moderationQueryService
     ) {
     }
 
     #[Route('/', name: 'backoffice_dashboard')]
+    /**
+     * Dashboard-Übersicht für Moderatoren/Admins.
+     *
+     * @return Response Dashboard-Template mit Statistiken und Aktivitäten
+     */
     public function index(): Response
     {
         $stats = $this->moderationQueryService->getDashboardStats();
