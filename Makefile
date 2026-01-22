@@ -20,13 +20,14 @@ help:
 deploy: down
 	@echo "🚀 Deploying TopicMatcher application..."
 	git pull || true
+	@echo "📁 Creating required directories..."
+	mkdir -p vendor var/cache var/log public/uploads
 	docker-compose build --no-cache
 	docker-compose up -d
 	@echo "⏳ Waiting for containers to be ready..."
 	sleep 15
 	@echo "🔧 Setting up environment..."
 	docker-compose exec app git config --global --add safe.directory /var/www || true
-	docker-compose exec app mkdir -p /var/www/vendor /var/www/var/cache /var/www/var/log || true
 	@echo "📦 Installing dependencies..."
 	docker-compose exec app composer install --optimize-autoloader --no-interaction
 	@echo "🗃️ Running database migrations..."
