@@ -35,4 +35,30 @@ enum EventStatus: string
     {
         return in_array($this, [self::CLOSED, self::ARCHIVED]);
     }
+
+    /**
+     * Returns the Bootstrap color class for this status
+     */
+    public function getColor(): string
+    {
+        return match($this) {
+            self::DRAFT => 'secondary',
+            self::ACTIVE => 'success', 
+            self::CLOSED => 'warning',
+            self::ARCHIVED => 'dark',
+        };
+    }
+
+    /**
+     * Returns the human-readable label for this status
+     */
+    public function getLabel(): string
+    {
+        return match($this) {
+            self::DRAFT => 'Entwurf',
+            self::ACTIVE => 'Aktiv',
+            self::CLOSED => 'Beendet',
+            self::ARCHIVED => 'Archiviert',
+        };
+    }
 }

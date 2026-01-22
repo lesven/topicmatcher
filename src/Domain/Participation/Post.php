@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Participation;
 
+use App\Domain\EventManagement\Event;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -20,11 +21,18 @@ class Post
     #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
+    #[ORM\ManyToOne(targetEntity: Event::class)]
+    #[ORM\JoinColumn(name: 'event_id', referencedColumnName: 'id', nullable: false)]
+    private Event $event;
+
+    #[ORM\Column(type: Types::STRING, length: 255)]
+    private string $title;
+
     #[ORM\Column(type: Types::TEXT)]
     private string $content;
 
-    #[ORM\Column(type: Types::STRING, length: 100)]
-    private string $authorName;
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
+    private ?string $authorName;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
     private string $authorEmail;
@@ -55,7 +63,7 @@ class Post
 
     #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'posts')]
     #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
-    private ?Category $category = null;
+    private Category $category;
 
     /**
      * @var Collection<int, Interest>
@@ -64,15 +72,27 @@ class Post
     private Collection $interests;
 
     public function __construct(
+        Event $event,
+        Category $category,
+        string $title,
         string $content,
-        string $authorName,
+        ?string $authorName,
         string $authorEmail,
-        bool $privacyAccepted
+        bool $showAuthorName,
+        string $ipAddress,
+        string $userAgent
     ) {
+        $this->event = $event;
+        $this->category = $category;
+        $this->title = $title;
         $this->content = $content;
         $this->authorName = $authorName;
         $this->authorEmail = $authorEmail;
-        $this->privacyAccepted = $privacyAccepted;
+        $this->showAuthorName = $showAuthorName;
+        $this->ipAddress = $ipAddress;
+        $this->userAgent = $userAgent;
+        $this->status = PostStatus::SUBMITTED;
+        $this->privacyAccepted = true; // Required for creation
         $this->createdAt = new \DateTimeImmutable();
         $this->interests = new ArrayCollection();
     }
@@ -80,6 +100,16 @@ class Post
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getEvent(): Event
+    {
+        return $this->event;
+    }
+
+    public function getTitle(): string
+    {
+        return $this->title;
     }
 
     public function getContent(): string
@@ -199,7 +229,7 @@ class Post
         $this->touch();
     }
 
-    public function getCategory(): ?Category
+    public function getCategory(): Category
     {
         return $this->category;
     }

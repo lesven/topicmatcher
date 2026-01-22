@@ -35,19 +35,16 @@ class Category
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $createdAt;
 
-    #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'categories')]
-    #[ORM\JoinColumn(name: 'event_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
-    private ?Event $event = null;
-
     /**
      * @var Collection<int, Post>
      */
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: Post::class)]
     private Collection $posts;
 
-    public function __construct(string $name, ?string $description = null)
+    public function __construct(string $name, string $color, ?string $description = null)
     {
         $this->name = $name;
+        $this->color = $color;
         $this->description = $description;
         $this->createdAt = new \DateTimeImmutable();
         $this->posts = new ArrayCollection();

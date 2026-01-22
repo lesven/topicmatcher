@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace App\Domain\EventManagement;
 
-use App\Domain\Participation\Category;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -31,25 +28,26 @@ class Event
     #[ORM\Column(type: Types::STRING, length: 20, enumType: EventStatus::class)]
     private EventStatus $status = EventStatus::DRAFT;
 
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $eventDate = null;
+
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $location = null;
+
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $createdAt;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
-    /**
-     * @var Collection<int, Category>
-     */
-    #[ORM\OneToMany(mappedBy: 'event', targetEntity: Category::class, cascade: ['persist', 'remove'])]
-    private Collection $categories;
-
-    public function __construct(string $name, string $slug, ?string $description = null)
+    public function __construct(string $name, string $slug, ?string $description = null, ?\DateTime $eventDate = null, ?string $location = null)
     {
         $this->name = $name;
         $this->slug = $slug;
         $this->description = $description;
+        $this->eventDate = $eventDate ? \DateTimeImmutable::createFromMutable($eventDate) : null;
+        $this->location = $location;
         $this->createdAt = new \DateTimeImmutable();
-        $this->categories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -93,6 +91,16 @@ class Event
     public function getStatus(): EventStatus
     {
         return $this->status;
+    }
+
+    public function getEventDate(): ?\DateTimeImmutable
+    {
+        return $this->eventDate;
+    }
+
+    public function getLocation(): ?string
+    {
+        return $this->location;
     }
 
     public function activate(): void
@@ -157,32 +165,12 @@ class Event
     /**
      * @return Collection<int, Category>
      */
-    public function getCategories(): Collection
-    {
-        return $this->categories;
-    }
-
-    public function addCategory(Category $category): void
-    {
-        if (!$this->categories->contains($category)) {
-            $this->categories->add($category);
-            $category->setEvent($this);
-        }
-    }
-
-    public function removeCategory(Category $category): void
-    {
-        if ($this->categories->removeElement($category)) {
-            $category->setEvent(null);
-        }
-    }
-
     /**
      * Wichtige MVP-Regel: Draft-Events sind immer leer
      */
     public function isDraftAndEmpty(): bool
     {
-        return $this->status === EventStatus::DRAFT && $this->categories->isEmpty();
+        return $this->status === EventStatus::DRAFT;
     }
 
     private function touch(): void

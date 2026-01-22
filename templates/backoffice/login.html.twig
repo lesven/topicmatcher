@@ -1,0 +1,78 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Backoffice Login - {{ parent() }}{% endblock %}
+
+{% block body_class %}login-page{% endblock %}
+
+{% block navbar %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block main_class %}container-fluid d-flex align-items-center justify-content-center min-vh-100{% endblock %}
+
+{% block body %}
+    <div class="row justify-content-center w-100">
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <h1 class="h3 text-primary">
+                            🤝 TopicMatcher
+                        </h1>
+                        <p class="text-muted">Backoffice Anmeldung</p>
+                    </div>
+
+                    {% if error %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error.messageKey|trans(error.messageData, 'security') }}
+                        </div>
+                    {% endif %}
+
+                    <form method="post">
+                        <div class="mb-3">
+                            <label for="inputUsername" class="form-label">Benutzername</label>
+                            <input type="text" 
+                                   value="{{ last_username }}" 
+                                   name="username" 
+                                   id="inputUsername" 
+                                   class="form-control" 
+                                   autocomplete="username" 
+                                   required 
+                                   autofocus>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="inputPassword" class="form-label">Passwort</label>
+                            <input type="password" 
+                                   name="password" 
+                                   id="inputPassword" 
+                                   class="form-control" 
+                                   autocomplete="current-password" 
+                                   required>
+                        </div>
+
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" name="_remember_me" class="form-check-input" id="remember_me">
+                            <label class="form-check-label" for="remember_me">
+                                Angemeldet bleiben
+                            </label>
+                        </div>
+
+                        <button class="btn btn-primary w-100" type="submit">
+                            Anmelden
+                        </button>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <small class="text-muted">
+                            <a href="{{ path('homepage') }}" class="text-decoration-none">
+                                ← Zurück zur Homepage
+                            </a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

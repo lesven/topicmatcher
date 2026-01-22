@@ -1,0 +1,161 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard - {{ parent() }}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h2 mb-4">
+                Backoffice Dashboard
+                <small class="text-muted">Willkommen, {{ app.user.username }}</small>
+            </h1>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Events</h5>
+                            <h3 class="mb-0">{{ stats.totalEvents ?? 0 }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fa fa-calendar fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Beiträge</h5>
+                            <h3 class="mb-0">{{ stats.totalPosts ?? 0 }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fa fa-file-text fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Zu moderieren</h5>
+                            <h3 class="mb-0">{{ stats.pendingModeration ?? 0 }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fa fa-exclamation-triangle fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Interessen</h5>
+                            <h3 class="mb-0">{{ stats.totalInterests ?? 0 }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fa fa-heart fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Aktuelle Aktivitäten</h5>
+                </div>
+                <div class="card-body">
+                    {% if recentActivities is empty %}
+                        <p class="text-muted mb-0">Noch keine Aktivitäten vorhanden.</p>
+                    {% else %}
+                        <div class="list-group list-group-flush">
+                            {% for activity in recentActivities %}
+                                <div class="list-group-item border-0 px-0">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ activity.title }}</h6>
+                                        <small>{{ activity.createdAt|date('d.m.Y H:i') }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ activity.description }}</p>
+                                    <small class="text-muted">{{ activity.type }}</small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Schnellaktionen</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <a href="#" class="btn btn-primary">
+                                <i class="fa fa-plus me-2"></i>Neues Event erstellen
+                            </a>
+                        {% endif %}
+                        
+                        <a href="#" class="btn btn-outline-secondary">
+                            <i class="fa fa-list me-2"></i>Alle Events verwalten
+                        </a>
+                        
+                        {% if stats.pendingModeration > 0 %}
+                            <a href="#" class="btn btn-warning">
+                                <i class="fa fa-eye me-2"></i>Moderationsqueue ({{ stats.pendingModeration }})
+                            </a>
+                        {% endif %}
+                        
+                        <a href="#" class="btn btn-outline-secondary">
+                            <i class="fa fa-file-text me-2"></i>Alle Beiträge
+                        </a>
+                        
+                        <a href="#" class="btn btn-outline-secondary">
+                            <i class="fa fa-heart me-2"></i>Interessensbekundungen
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {% if is_granted('ROLE_ADMIN') %}
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">Administration</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="#" class="btn btn-outline-danger btn-sm">
+                                <i class="fa fa-users me-2"></i>Benutzer verwalten
+                            </a>
+                            <a href="#" class="btn btn-outline-secondary btn-sm">
+                                <i class="fa fa-cog me-2"></i>Systemeinstellungen
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

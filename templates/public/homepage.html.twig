@@ -1,0 +1,93 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Events - {{ parent() }}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h2 mb-4">
+                <span class="text-primary">🤝</span> Willkommen bei TopicMatcher
+            </h1>
+            <p class="lead text-muted mb-4">
+                Networking für Konferenzen & Messen - Finde Gesprächspartner und tausche Expertise aus
+            </p>
+        </div>
+    </div>
+
+    {% if events is empty %}
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-info" role="alert">
+                    <h4 class="alert-heading">Noch keine Events verfügbar</h4>
+                    <p class="mb-0">
+                        Derzeit sind keine öffentlichen Events verfügbar. 
+                        Schauen Sie später wieder vorbei!
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="row">
+            {% for event in events %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ event.name }}</h5>
+                            <p class="card-text">{{ event.description|u.truncate(120) }}</p>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    {% if event.eventDate %}
+                                        📅 {{ event.eventDate|date('d.m.Y') }}
+                                    {% endif %}
+                                </small>
+                                <span class="badge bg-{{ event.status.color }}">
+                                    {{ event.status.label }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a href="{{ path('event_show', { slug: event.slug }) }}" 
+                               class="btn btn-primary btn-sm w-100">
+                                Event ansehen
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card border-0 bg-light">
+                <div class="card-body text-center py-5">
+                    <h3>Wie funktioniert TopicMatcher?</h3>
+                    <div class="row mt-4">
+                        <div class="col-md-4 mb-3">
+                            <div class="text-primary mb-2">
+                                <i class="fa fa-search fa-2x" aria-hidden="true"></i>
+                            </div>
+                            <h5>1. Event finden</h5>
+                            <p class="text-muted">Wähle eine aktuelle Konferenz oder Messe aus</p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="text-primary mb-2">
+                                <i class="fa fa-edit fa-2x" aria-hidden="true"></i>
+                            </div>
+                            <h5>2. Interesse posten</h5>
+                            <p class="text-muted">"Ich biete..." oder "Ich suche..." Beiträge erstellen</p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="text-primary mb-2">
+                                <i class="fa fa-handshake-o fa-2x" aria-hidden="true"></i>
+                            </div>
+                            <h5>3. Vernetzen</h5>
+                            <p class="text-muted">Interessante Posts finden und Kontakt aufnehmen</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,131 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ event.name }} - {{ parent() }}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ path('homepage') }}">Events</a></li>
+                    <li class="breadcrumb-item active">{{ event.name }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h1 class="h3 mb-0">{{ event.name }}</h1>
+                        <span class="badge bg-{{ event.status.color }} fs-6">
+                            {{ event.status.label }}
+                        </span>
+                    </div>
+                    
+                    {% if event.description %}
+                        <p class="text-muted mb-3">{{ event.description }}</p>
+                    {% endif %}
+
+                    {% if event.eventDate %}
+                        <div class="mb-3">
+                            <small class="text-muted">
+                                📅 {{ event.eventDate|date('d.m.Y') }}
+                                {% if event.location %}
+                                    | 📍 {{ event.location }}
+                                {% endif %}
+                            </small>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mb-4">
+            {% if event.status.allowsNewPosts %}
+                <div class="card border-primary">
+                    <div class="card-body text-center">
+                        <h5 class="card-title text-primary">Teilnehmen</h5>
+                        <p class="card-text">Teile deine Expertise oder finde Gesprächspartner</p>
+                        <a href="{{ path('post_create', { slug: event.slug }) }}" 
+                           class="btn btn-primary">
+                            Neuen Beitrag erstellen
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                <div class="card border-secondary">
+                    <div class="card-body text-center text-muted">
+                        <h5 class="card-title">Event beendet</h5>
+                        <p class="card-text">Keine neuen Beiträge möglich</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if posts is not empty %}
+        <div class="row">
+            <div class="col-12">
+                <h2 class="h4 mb-4">Aktuelle Beiträge</h2>
+                
+                {% for categoryName, categoryPosts in posts %}
+                    <div class="mb-4">
+                        <h3 class="h5 text-muted mb-3">{{ categoryName }}</h3>
+                        <div class="row">
+                            {% for post in categoryPosts %}
+                                <div class="col-md-6 col-lg-4 mb-4">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <span class="badge bg-{{ post.category.color }}">
+                                                    {{ post.category.name }}
+                                                </span>
+                                                <small class="text-muted">{{ post.createdAt|date('d.m.') }}</small>
+                                            </div>
+                                            
+                                            <h5 class="card-title">{{ post.title }}</h5>
+                                            <p class="card-text">{{ post.content|u.truncate(100) }}</p>
+                                        </div>
+                                        <div class="card-footer bg-transparent">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                {% if post.showAuthorName and post.authorName %}
+                                                    <small class="text-muted">{{ post.authorName }}</small>
+                                                {% else %}
+                                                    <small class="text-muted">Anonym</small>
+                                                {% endif %}
+                                                <a href="{{ path('post_show', { 
+                                                    slug: event.slug, 
+                                                    id: post.id 
+                                                }) }}" class="btn btn-outline-primary btn-sm">
+                                                    Interessiert
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-info text-center" role="alert">
+                    <h4 class="alert-heading">Noch keine Beiträge</h4>
+                    <p>Seien Sie der Erste und erstellen Sie einen Beitrag für dieses Event!</p>
+                    {% if event.status.allowsNewPosts %}
+                        <a href="{{ path('post_create', { slug: event.slug }) }}" 
+                           class="btn btn-primary">
+                            Ersten Beitrag erstellen
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
