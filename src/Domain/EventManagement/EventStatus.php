@@ -21,6 +21,11 @@ enum EventStatus: string
         return $this === self::ACTIVE;
     }
 
+    public function allowsNewPosts(): bool
+    {
+        return $this === self::ACTIVE;
+    }
+
     public function allowsInterests(): bool
     {
         return $this === self::ACTIVE;

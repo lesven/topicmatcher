@@ -33,8 +33,7 @@ class AppFixtures extends Fixture
         $moderator->setPassword($this->passwordHasher->hashPassword($moderator, 'mod123'));
         $manager->persist($moderator);
 
-        // Categories temporarily disabled
-        /*
+        // Categories
         $categories = [
             new Category('Technologie', '#007bff', 'Technische Expertise und Innovationen'),
             new Category('Business', '#28a745', 'Geschäftsentwicklung und Strategien'),
@@ -46,7 +45,6 @@ class AppFixtures extends Fixture
         foreach ($categories as $category) {
             $manager->persist($category);
         }
-        */
 
         // Events
         $activeEvent = new Event(
@@ -71,8 +69,7 @@ class AppFixtures extends Fixture
         // Flush vor Posts um IDs zu haben
         $manager->flush();
 
-        // Sample Posts temporarily disabled until database structure is verified
-        /*
+        // Sample Posts for Active Event
         $posts = [
             [
                 'title' => 'Suche Frontend-Entwickler für React Projekt',
@@ -119,7 +116,6 @@ class AppFixtures extends Fixture
             $post->approve('System'); // Auto-approve for demo
             $manager->persist($post);
         }
-        */
 
         $manager->flush();
     }

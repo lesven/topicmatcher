@@ -12,7 +12,6 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'categories')]
-#[ORM\UniqueConstraint(name: 'unique_category_per_event', columns: ['event_id', 'name'])]
 class Category
 {
     #[ORM\Id]
@@ -98,16 +97,6 @@ class Category
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
-    }
-
-    public function getEvent(): ?Event
-    {
-        return $this->event;
-    }
-
-    public function setEvent(?Event $event): void
-    {
-        $this->event = $event;
     }
 
     /**

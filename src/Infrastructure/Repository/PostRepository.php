@@ -39,12 +39,11 @@ class PostRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('p')
             ->join('p.category', 'c')
-            ->andWhere('c.event = :event')
+            ->andWhere('p.event = :event')
             ->andWhere('p.status = :approved')
             ->setParameter('event', $event)
             ->setParameter('approved', PostStatus::APPROVED)
-            ->orderBy('c.sortOrder', 'ASC')
-            ->addOrderBy('p.createdAt', 'DESC')
+            ->orderBy('p.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
     }
@@ -73,7 +72,7 @@ class PostRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('p')
             ->join('p.category', 'c')
-            ->andWhere('c.event = :event')
+            ->andWhere('p.event = :event')
             ->andWhere('p.status = :status')
             ->setParameter('event', $event)
             ->setParameter('status', $status)
@@ -86,8 +85,7 @@ class PostRepository extends ServiceEntityRepository
     {
         return (int) $this->createQueryBuilder('p')
             ->select('COUNT(p.id)')
-            ->join('p.category', 'c')
-            ->andWhere('c.event = :event')
+            ->andWhere('p.event = :event')
             ->andWhere('p.status = :status')
             ->setParameter('event', $event)
             ->setParameter('status', $status)

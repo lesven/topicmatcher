@@ -1,0 +1,85 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Beitrag erfolgreich eingereicht - {{ event.name }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Success Card -->
+            <div class="card border-success">
+                <div class="card-header bg-success text-white">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-check-circle-fill me-2" style="font-size: 1.5rem;"></i>
+                        <h4 class="mb-0">Erfolgreich eingereicht!</h4>
+                    </div>
+                </div>
+                
+                <div class="card-body text-center py-5">
+                    <div class="mb-4">
+                        <i class="bi bi-check-circle text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    
+                    <h2 class="text-success mb-3">Vielen Dank!</h2>
+                    
+                    <p class="lead mb-4">
+                        Ihr Beitrag wurde erfolgreich eingereicht und wird nun von unserem Moderatorenteam geprüft.
+                    </p>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Was passiert als nächstes?</strong>
+                        <ul class="list-unstyled mt-2 mb-0">
+                            <li>• Ihr Beitrag wird innerhalb von 24 Stunden moderiert</li>
+                            <li>• Nach der Freigabe ist er für alle Teilnehmer sichtbar</li>
+                            <li>• Sie erhalten keine separate Benachrichtigung</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-light">
+                    <div class="d-flex flex-column flex-sm-row gap-2 justify-content-center">
+                        <a href="{{ path('event_show', {slug: event.slug}) }}" 
+                           class="btn btn-primary">
+                            <i class="bi bi-arrow-left me-2"></i>
+                            Zurück zur Übersicht
+                        </a>
+                        
+                        <a href="{{ path('post_create', {slug: event.slug}) }}" 
+                           class="btn btn-outline-secondary">
+                            <i class="bi bi-plus-circle me-2"></i>
+                            Weiteren Beitrag erstellen
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Event Info -->
+            <div class="mt-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-calendar-event me-2"></i>
+                            {{ event.name }}
+                        </h5>
+                        <p class="card-text text-muted">
+                            {% if event.location %}
+                                <i class="bi bi-geo-alt me-2"></i>
+                                {{ event.location }}
+                            {% endif %}
+                        </p>
+                        {% if event.eventDate %}
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar3 me-2"></i>
+                                    {{ event.eventDate|date('d.m.Y') }}
+                                </small>
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

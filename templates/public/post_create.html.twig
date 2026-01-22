@@ -1,0 +1,135 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Beitrag erstellen - {{ event.name }} - {{ parent() }}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ path('homepage') }}">Events</a></li>
+                    <li class="breadcrumb-item"><a href="{{ path('event_show', { slug: event.slug }) }}">{{ event.name }}</a></li>
+                    <li class="breadcrumb-item active">Beitrag erstellen</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h1 class="h4 mb-0">
+                        <i class="fas fa-plus-circle"></i> Neuen Beitrag erstellen
+                    </h1>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h5 class="alert-heading">Hinweis zur Moderation</h5>
+                        <p class="mb-0">
+                            Ihr Beitrag wird nach dem Einreichen von unseren Moderatoren geprüft 
+                            und erst nach Freigabe öffentlich sichtbar.
+                        </p>
+                    </div>
+
+                    {{ form_start(form, {
+                        'action': path('post_create', {slug: event.slug}), 
+                        'method': 'POST',
+                        'attr': {
+                            'data-turbo': 'false',
+                            'onsubmit': 'return true;'
+                        }
+                    }) }}
+                        
+                        <div class="mb-3">
+                            {{ form_label(form.category) }}
+                            {{ form_widget(form.category, {'attr': {'class': 'form-select'}}) }}
+                            {{ form_errors(form.category) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.title) }}
+                            {{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}
+                            <div class="form-text">Beschreiben Sie kurz, was Sie suchen oder anbieten.</div>
+                            {{ form_errors(form.title) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.content) }}
+                            {{ form_widget(form.content, {'attr': {'class': 'form-control'}}) }}
+                            <div class="form-text">Geben Sie weitere Details in 1-2 Sätzen an (max. 500 Zeichen).</div>
+                            {{ form_errors(form.content) }}
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="mb-3">
+                            {{ form_label(form.authorName) }}
+                            {{ form_widget(form.authorName, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.authorName) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.authorEmail) }}
+                            {{ form_widget(form.authorEmail, {'attr': {'class': 'form-control'}}) }}
+                            <div class="form-text">Ihre E-Mail wird nicht öffentlich angezeigt.</div>
+                            {{ form_errors(form.authorEmail) }}
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form_widget(form.showAuthorName, {'attr': {'class': 'form-check-input'}}) }}
+                                {{ form_label(form.showAuthorName, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                                {% if form.showAuthorName.vars.help %}
+                                    <div class="form-text">{{ form.showAuthorName.vars.help }}</div>
+                                {% endif %}
+                                {{ form_errors(form.showAuthorName) }}
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form_widget(form.privacyAccepted, {'attr': {'class': 'form-check-input'}}) }}
+                                {{ form_label(form.privacyAccepted, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                                {{ form_errors(form.privacyAccepted) }}
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ path('event_show', { slug: event.slug }) }}" class="btn btn-secondary">
+                                Abbrechen
+                            </a>
+                            <button type="submit" class="btn btn-primary" name="submit" value="1">
+                                <i class="bi bi-send"></i> Beitrag einreichen
+                            </button>
+                        </div>
+
+                        {# Render hidden fields but not the submit button #}
+                        {% for child in form.children %}
+                            {% if child.vars.name != 'submit' and not child.rendered %}
+                                {{ form_widget(child) }}
+                            {% endif %}
+                        {% endfor %}
+
+                    {{ form_end(form, {'render_rest': false}) }}
+                </div>
+            </div>
+
+            <div class="card mt-4 border-warning">
+                <div class="card-body">
+                    <h5 class="card-title text-warning">
+                        <i class="fas fa-shield-alt"></i> Datenschutz & Sicherheit
+                    </h5>
+                    <ul class="mb-0 small">
+                        <li>Ihre E-Mail-Adresse wird niemals öffentlich angezeigt</li>
+                        <li>Ihr Name wird nur angezeigt, wenn Sie dies wählen</li>
+                        <li>Alle Beiträge werden vor Veröffentlichung moderiert</li>
+                        <li>Unangemessene Inhalte werden nicht freigeschaltet</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -125,6 +125,6 @@ class Interest
      */
     public function belongsToEvent(int $eventId): bool
     {
-        return $this->post?->getCategory()?->getEvent()?->getId() === $eventId;
+        return $this->post?->getEvent()?->getId() === $eventId;
     }
 }

@@ -71,36 +71,43 @@
             <div class="col-12">
                 <h2 class="h4 mb-4">Aktuelle Beiträge</h2>
                 
-                {% for categoryName, categoryPosts in posts %}
+                {% for categoryName, categoryData in posts %}
                     <div class="mb-4">
-                        <h3 class="h5 text-muted mb-3">{{ categoryName }}</h3>
+                        <h3 class="h5 text-primary mb-3">
+                            <span class="badge bg-primary rounded-pill me-2">{{ categoryData.posts|length }}</span>
+                            {{ categoryName }}
+                        </h3>
                         <div class="row">
-                            {% for post in categoryPosts %}
-                                <div class="col-md-6 col-lg-4 mb-4">
+                            {% for post in categoryData.posts %}
+                                <div class="col-md-6 col-lg-4 mb-3">
                                     <div class="card h-100">
                                         <div class="card-body">
                                             <div class="d-flex justify-content-between align-items-start mb-2">
-                                                <span class="badge bg-{{ post.category.color }}">
+                                                <span class="badge" style="background-color: {{ post.category.color }}">
                                                     {{ post.category.name }}
                                                 </span>
                                                 <small class="text-muted">{{ post.createdAt|date('d.m.') }}</small>
                                             </div>
                                             
                                             <h5 class="card-title">{{ post.title }}</h5>
-                                            <p class="card-text">{{ post.content|u.truncate(100) }}</p>
+                                            <p class="card-text">{{ post.content|u.truncate(120) }}</p>
                                         </div>
                                         <div class="card-footer bg-transparent">
                                             <div class="d-flex justify-content-between align-items-center">
                                                 {% if post.showAuthorName and post.authorName %}
-                                                    <small class="text-muted">{{ post.authorName }}</small>
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-user"></i> {{ post.authorName }}
+                                                    </small>
                                                 {% else %}
-                                                    <small class="text-muted">Anonym</small>
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-user-secret"></i> Anonym
+                                                    </small>
                                                 {% endif %}
                                                 <a href="{{ path('post_show', { 
                                                     slug: event.slug, 
                                                     id: post.id 
                                                 }) }}" class="btn btn-outline-primary btn-sm">
-                                                    Interessiert
+                                                    <i class="fas fa-heart"></i> Interessiert
                                                 </a>
                                             </div>
                                         </div>
