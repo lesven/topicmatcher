@@ -1,0 +1,109 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Interesse bekundet - {{ post.title }} - {{ event.name }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Success Card -->
+            <div class="card border-success">
+                <div class="card-header bg-success text-white">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-check-circle-fill me-2" style="font-size: 1.5rem;"></i>
+                        <h4 class="mb-0">Interesse erfolgreich bekundet!</h4>
+                    </div>
+                </div>
+                
+                <div class="card-body text-center py-5">
+                    <div class="mb-4">
+                        <i class="bi bi-heart-fill text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    
+                    <h2 class="text-success mb-3">Vielen Dank für Ihr Interesse!</h2>
+                    
+                    <p class="lead mb-4">
+                        Ihre Kontaktdaten wurden erfolgreich an den Autor weitergeleitet.
+                    </p>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Was passiert als nächstes?</strong>
+                        <ul class="list-unstyled mt-2 mb-0 text-start">
+                            <li>• Der Autor erhält Ihre Kontaktdaten per E-Mail</li>
+                            <li>• Sie werden direkt vom Autor kontaktiert</li>
+                            <li>• Der weitere Austausch findet direkt zwischen Ihnen statt</li>
+                            <li>• Ihre E-Mail wird nicht öffentlich angezeigt</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Post Info -->
+            <div class="mt-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-bookmark"></i> Ihr Interesse gilt diesem Beitrag:
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <span class="badge bg-primary">{{ post.category.name }}</span>
+                        </div>
+                        <h5 class="card-title">{{ post.title }}</h5>
+                        <p class="card-text">{{ post.content }}</p>
+                        
+                        {% if post.showAuthorName and post.authorName %}
+                            <small class="text-muted">
+                                <i class="bi bi-person"></i> von {{ post.authorName }}
+                            </small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Event Info -->
+            <div class="mt-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-calendar-event me-2"></i>
+                            {{ event.name }}
+                        </h5>
+                        {% if event.location %}
+                            <p class="card-text text-muted">
+                                <i class="bi bi-geo-alt me-2"></i>
+                                {{ event.location }}
+                            </p>
+                        {% endif %}
+                        {% if event.eventDate %}
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar3 me-2"></i>
+                                    {{ event.eventDate|date('d.m.Y') }}
+                                </small>
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="mt-4 d-flex flex-column flex-sm-row gap-2 justify-content-center">
+                <a href="{{ path('event_show', {slug: event.slug}) }}" 
+                   class="btn btn-primary">
+                    <i class="bi bi-arrow-left me-2"></i>
+                    Zurück zur Übersicht
+                </a>
+                
+                <a href="{{ path('post_create', {slug: event.slug}) }}" 
+                   class="btn btn-outline-secondary">
+                    <i class="bi bi-plus-circle me-2"></i>
+                    Eigenen Beitrag erstellen
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

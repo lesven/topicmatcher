@@ -106,6 +106,46 @@
         </div>
 
         <div class="col-lg-4 mb-4">
+            {% if pendingPosts is not empty %}
+                <div class="card mb-3">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            Zu moderieren ({{ pendingPosts|length }})
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            {% for post in pendingPosts %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ post.title|u.truncate(40) }}</h6>
+                                        <small>{{ post.createdAt|date('d.m. H:i') }}</small>
+                                    </div>
+                                    <p class="mb-1 small text-muted">{{ post.content|u.truncate(80) }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            <span class="badge bg-primary">{{ post.category.name }}</span>
+                                        </small>
+                                        <a href="{{ path('backoffice_moderation_post_detail', {id: post.id}) }}" 
+                                           class="btn btn-outline-primary btn-sm">
+                                            Moderieren
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% if stats.pendingModeration > pendingPosts|length %}
+                            <div class="card-footer text-center">
+                                <a href="{{ path('backoffice_moderation_index') }}" class="btn btn-link btn-sm">
+                                    Alle {{ stats.pendingModeration }} Posts anzeigen
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+            
             <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0">Schnellaktionen</h5>
@@ -123,13 +163,13 @@
                         </a>
                         
                         {% if stats.pendingModeration > 0 %}
-                            <a href="#" class="btn btn-warning">
-                                <i class="fa fa-eye me-2"></i>Moderationsqueue ({{ stats.pendingModeration }})
+                            <a href="{{ path('backoffice_moderation_index') }}" class="btn btn-warning">
+                                <i class="bi bi-eye me-2"></i>Moderationsqueue ({{ stats.pendingModeration }})
                             </a>
                         {% endif %}
                         
-                        <a href="#" class="btn btn-outline-secondary">
-                            <i class="fa fa-file-text me-2"></i>Alle Beiträge
+                        <a href="{{ path('backoffice_moderation_index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-file-text me-2"></i>Alle Beiträge
                         </a>
                         
                         <a href="#" class="btn btn-outline-secondary">

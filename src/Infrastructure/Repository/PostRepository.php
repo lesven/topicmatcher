@@ -92,4 +92,58 @@ class PostRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    public function getTotalCount(): int
+    {
+        return (int) $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function getCountByStatus(PostStatus $status): int
+    {
+        return (int) $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->andWhere('p.status = :status')
+            ->setParameter('status', $status)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
+     * @return Post[]
+     */
+    public function findByStatus(PostStatus $status, ?int $limit = null): array
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->join('p.category', 'c')
+            ->join('p.event', 'e')
+            ->andWhere('p.status = :status')
+            ->setParameter('status', $status)
+            ->orderBy('p.createdAt', 'ASC');
+
+        if ($limit !== null) {
+            $qb->setMaxResults($limit);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * @return Post[]
+     */
+    public function getRecentlyModerated(int $limit = 10): array
+    {
+        return $this->createQueryBuilder('p')
+            ->join('p.category', 'c')
+            ->join('p.event', 'e')
+            ->andWhere('p.status IN (:statuses)')
+            ->andWhere('p.updatedAt IS NOT NULL')
+            ->setParameter('statuses', [PostStatus::APPROVED, PostStatus::REJECTED])
+            ->orderBy('p.updatedAt', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
 }

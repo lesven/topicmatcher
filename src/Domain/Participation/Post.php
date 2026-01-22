@@ -198,6 +198,11 @@ class Post
         return $this->status->isPubliclyVisible();
     }
 
+    public function isApproved(): bool
+    {
+        return $this->status === PostStatus::APPROVED;
+    }
+
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;

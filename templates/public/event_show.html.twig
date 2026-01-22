@@ -96,19 +96,27 @@
                                             <div class="d-flex justify-content-between align-items-center">
                                                 {% if post.showAuthorName and post.authorName %}
                                                     <small class="text-muted">
-                                                        <i class="fas fa-user"></i> {{ post.authorName }}
+                                                        <i class="bi bi-person"></i> {{ post.authorName }}
                                                     </small>
                                                 {% else %}
                                                     <small class="text-muted">
-                                                        <i class="fas fa-user-secret"></i> Anonym
+                                                        <i class="bi bi-person-x"></i> Anonym
                                                     </small>
                                                 {% endif %}
-                                                <a href="{{ path('post_show', { 
-                                                    slug: event.slug, 
-                                                    id: post.id 
-                                                }) }}" class="btn btn-outline-primary btn-sm">
-                                                    <i class="fas fa-heart"></i> Interessiert
-                                                </a>
+                                                
+                                                <div class="d-flex align-items-center gap-2">
+                                                    {% if post.interests|length > 0 %}
+                                                        <small class="text-success">
+                                                            <i class="bi bi-people"></i> {{ post.interests|length }}
+                                                        </small>
+                                                    {% endif %}
+                                                    <a href="{{ path('post_interest', { 
+                                                        slug: event.slug, 
+                                                        id: post.id 
+                                                    }) }}" class="btn btn-primary btn-sm">
+                                                        <i class="bi bi-heart"></i> Interesse
+                                                    </a>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

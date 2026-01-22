@@ -66,4 +66,12 @@ class InterestRepository extends ServiceEntityRepository
     {
         return $this->findByPostAndEmail($post, $email) !== null;
     }
+
+    public function getTotalCount(): int
+    {
+        return (int) $this->createQueryBuilder('i')
+            ->select('COUNT(i.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }

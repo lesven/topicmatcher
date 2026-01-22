@@ -10,6 +10,8 @@ use App\Application\Participation\Command\InterestSubmissionService;
 use App\Application\Participation\Dto\InterestSubmissionDto;
 use App\Domain\Participation\Post;
 use App\Form\PostSubmissionType;
+use App\Form\InterestSubmissionType;
+use App\Infrastructure\Repository\PostRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,7 +24,8 @@ class EventController extends AbstractController
         private readonly EventQueryService $eventQueryService,
         private readonly PostQueryService $postQueryService,
         private readonly InterestSubmissionService $interestService,
-        private readonly EntityManagerInterface $entityManager
+        private readonly EntityManagerInterface $entityManager,
+        private readonly PostRepository $postRepository
     ) {
     }
 
@@ -54,9 +57,6 @@ class EventController extends AbstractController
 
         $form = $this->createForm(PostSubmissionType::class);
         $form->handleRequest($request);
-
-        // TEST: Immer eine Flash-Message anzeigen
-        $this->addFlash('info', 'Controller wurde aufgerufen - Method: ' . $request->getMethod());
 
         // DEBUG: Log request details
         if ($request->isMethod('POST')) {
@@ -164,13 +164,65 @@ class EventController extends AbstractController
     {
         $event = $this->eventQueryService->findBySlug($slug);
         
-        if (!$event || !$event->allowsInterests()) {
+        if (!$event || !$event->getStatus()->allowsInterests()) {
             throw $this->createNotFoundException('Interessenbekundung nicht möglich');
         }
 
-        // TODO: Implement interest submission form
-        // For now, redirect to event
-        $this->addFlash('info', 'Interessenbekundung ist noch nicht implementiert');
-        return $this->redirectToRoute('event_show', ['slug' => $slug]);
+        $post = $this->postRepository->find($id);
+        if (!$post || $post->getEvent() !== $event || !$post->isApproved()) {
+            throw $this->createNotFoundException('Beitrag nicht gefunden');
+        }
+
+        // Check if already interested
+        $form = $this->createForm(InterestSubmissionType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $data = $form->getData();
+                
+                // Check for duplicate before submission
+                if ($this->interestService->isDuplicateInterest($post, $data['email'])) {
+                    $this->addFlash('warning', 'Sie haben bereits Interesse an diesem Beitrag bekundet.');
+                } else {
+                    $this->interestService->submitInterest(
+                        $post,
+                        $data['name'],
+                        $data['email'],
+                        $data['privacyAccepted'] ?? false
+                    );
+                    
+                    return $this->redirectToRoute('post_interest_success', [
+                        'slug' => $slug,
+                        'id' => $id
+                    ]);
+                }
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Fehler beim Bekunden des Interesses: ' . $e->getMessage());
+            }
+        }
+
+        return $this->render('public/post_interest.html.twig', [
+            'event' => $event,
+            'post' => $post,
+            'form' => $form->createView(),
+            'interestCount' => $this->interestService->getInterestCount($post)
+        ]);
+    }
+
+    #[Route('/{slug}/post/{id}/interest/success', name: 'post_interest_success', requirements: ['slug' => '[a-z0-9\-]+', 'id' => '\d+'])]
+    public function submitInterestSuccess(string $slug, int $id): Response
+    {
+        $event = $this->eventQueryService->findBySlug($slug);
+        $post = $this->postRepository->find($id);
+        
+        if (!$event || !$post || $post->getEvent() !== $event) {
+            throw $this->createNotFoundException('Beitrag nicht gefunden');
+        }
+
+        return $this->render('public/post_interest_success.html.twig', [
+            'event' => $event,
+            'post' => $post,
+        ]);
     }
 }

@@ -1,0 +1,145 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Interesse bekunden - {{ post.title }} - {{ event.name }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ path('homepage') }}">Events</a></li>
+                    <li class="breadcrumb-item"><a href="{{ path('event_show', { slug: event.slug }) }}">{{ event.name }}</a></li>
+                    <li class="breadcrumb-item active">Interesse bekunden</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <!-- Post Info -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-heart"></i> Interesse bekunden
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <span class="badge bg-primary">{{ post.category.name }}</span>
+                    </div>
+                    <h4 class="card-title">{{ post.title }}</h4>
+                    <p class="card-text">{{ post.content }}</p>
+                    
+                    {% if post.showAuthorName and post.authorName %}
+                        <small class="text-muted">
+                            <i class="bi bi-person"></i> von {{ post.authorName }}
+                        </small>
+                    {% endif %}
+                    
+                    {% if interestCount > 0 %}
+                        <div class="mt-2">
+                            <small class="text-success">
+                                <i class="bi bi-people"></i> {{ interestCount }} 
+                                {{ interestCount == 1 ? 'Person hat' : 'Personen haben' }} bereits Interesse bekundet
+                            </small>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Interest Form -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h1 class="h5 mb-0">
+                        <i class="bi bi-envelope-heart"></i> Ihre Kontaktdaten
+                    </h1>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h6 class="alert-heading">So funktioniert's:</h6>
+                        <ul class="mb-0 small">
+                            <li>Ihre Kontaktdaten werden an den Autor weitergeleitet</li>
+                            <li>Ihre E-Mail wird nicht öffentlich angezeigt</li>
+                            <li>Der Autor kann Sie direkt kontaktieren</li>
+                        </ul>
+                    </div>
+
+                    {{ form_start(form, {
+                        'action': path('post_interest', {slug: event.slug, id: post.id}), 
+                        'method': 'POST',
+                        'attr': {
+                            'data-turbo': 'false'
+                        }
+                    }) }}
+                        
+                        <div class="mb-3">
+                            {{ form_label(form.name, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.name) }}
+                            <div class="form-text">Ihr vollständiger Name</div>
+                            {{ form_errors(form.name) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.email, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.email) }}
+                            <div class="form-text">Wird nur an den Autor weitergegeben, nicht öffentlich angezeigt</div>
+                            {{ form_errors(form.email) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.message, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.message) }}
+                            <div class="form-text">Zusätzliche Informationen oder Fragen (max. 500 Zeichen)</div>
+                            {{ form_errors(form.message) }}
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form_widget(form.privacyAccepted, {'attr': {'class': 'form-check-input'}}) }}
+                                {{ form_label(form.privacyAccepted, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                                {{ form_errors(form.privacyAccepted) }}
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ path('event_show', { slug: event.slug }) }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Zurück
+                            </a>
+                            <button type="submit" class="btn btn-primary" name="submit" value="1">
+                                <i class="bi bi-heart"></i> Interesse bekunden
+                            </button>
+                        </div>
+
+                        {# Render hidden fields but not the submit button #}
+                        {% for child in form.children %}
+                            {% if child.vars.name != 'submit' and not child.rendered %}
+                                {{ form_widget(child) }}
+                            {% endif %}
+                        {% endfor %}
+
+                    {{ form_end(form, {'render_rest': false}) }}
+                </div>
+            </div>
+
+            <!-- Privacy Info -->
+            <div class="card mt-4 border-warning">
+                <div class="card-body">
+                    <h6 class="card-title text-warning">
+                        <i class="bi bi-shield-check"></i> Datenschutz & Privatsphäre
+                    </h6>
+                    <ul class="mb-0 small">
+                        <li>Ihre E-Mail-Adresse wird ausschließlich an den Autor weitergegeben</li>
+                        <li>Ihre Daten werden nicht für andere Zwecke verwendet</li>
+                        <li>Sie können jederzeit die Löschung Ihrer Daten anfordern</li>
+                        <li>Der weitere Kontakt findet direkt zwischen Ihnen und dem Autor statt</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

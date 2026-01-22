@@ -1,0 +1,201 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Moderation - {{ parent() }}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h2 mb-0">Beiträge moderieren</h1>
+                    <small class="text-muted">Verwaltung aller eingereichten Beiträge</small>
+                </div>
+                <div>
+                    <a href="{{ path('backoffice_dashboard') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Zu moderieren</h5>
+                            <h3 class="mb-0">{{ stats.pendingModeration }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Freigegeben</h5>
+                            <h3 class="mb-0">{{ stats.approvedPosts }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-check-circle" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-danger">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Abgelehnt</h5>
+                            <h3 class="mb-0">{{ stats.rejectedPosts }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-x-circle" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Gesamt</h5>
+                            <h3 class="mb-0">{{ stats.totalPosts }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-file-text" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link {{ currentStatus.value == 'submitted' ? 'active' : '' }}" 
+                               href="{{ path('backoffice_moderation_index', {status: 'submitted'}) }}">
+                                <i class="bi bi-clock-history me-2"></i>
+                                Zu moderieren ({{ stats.pendingModeration }})
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link {{ currentStatus.value == 'approved' ? 'active' : '' }}" 
+                               href="{{ path('backoffice_moderation_index', {status: 'approved'}) }}">
+                                <i class="bi bi-check-circle me-2"></i>
+                                Freigegeben ({{ stats.approvedPosts }})
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link {{ currentStatus.value == 'rejected' ? 'active' : '' }}" 
+                               href="{{ path('backoffice_moderation_index', {status: 'rejected'}) }}">
+                                <i class="bi bi-x-circle me-2"></i>
+                                Abgelehnt ({{ stats.rejectedPosts }})
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    {% if posts is empty %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-inbox" style="font-size: 4rem; color: #dee2e6;"></i>
+                            <h3 class="text-muted mt-3">Keine Beiträge</h3>
+                            <p class="text-muted">
+                                {% if currentStatus.value == 'submitted' %}
+                                    Zurzeit sind keine Beiträge zu moderieren.
+                                {% elseif currentStatus.value == 'approved' %}
+                                    Noch keine Beiträge freigegeben.
+                                {% elseif currentStatus.value == 'rejected' %}
+                                    Noch keine Beiträge abgelehnt.
+                                {% endif %}
+                            </p>
+                        </div>
+                    {% else %}
+                        <div class="row">
+                            {% for post in posts %}
+                                <div class="col-lg-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <span class="badge bg-primary">{{ post.category.name }}</span>
+                                                <small class="text-muted">{{ post.createdAt|date('d.m.Y H:i') }}</small>
+                                            </div>
+                                            
+                                            <h5 class="card-title">{{ post.title }}</h5>
+                                            <p class="card-text">{{ post.content|u.truncate(150) }}</p>
+                                            
+                                            <div class="row text-center text-muted mb-3">
+                                                <div class="col">
+                                                    <small>
+                                                        <i class="bi bi-person"></i><br>
+                                                        {{ post.authorName ?: 'Anonym' }}
+                                                    </small>
+                                                </div>
+                                                <div class="col">
+                                                    <small>
+                                                        <i class="bi bi-envelope"></i><br>
+                                                        {{ post.authorEmail|u.truncate(20) }}
+                                                    </small>
+                                                </div>
+                                                <div class="col">
+                                                    <small>
+                                                        <i class="bi bi-calendar-event"></i><br>
+                                                        {{ post.event.name|u.truncate(15) }}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="d-flex gap-2 justify-content-center">
+                                                <a href="{{ path('backoffice_moderation_post_detail', {id: post.id}) }}" 
+                                                   class="btn btn-outline-primary btn-sm">
+                                                    <i class="bi bi-eye"></i> Details
+                                                </a>
+                                                
+                                                {% if currentStatus.value == 'submitted' %}
+                                                    <form method="post" action="{{ path('backoffice_moderation_approve', {id: post.id}) }}" 
+                                                          style="display: inline-block;">
+                                                        <button type="submit" class="btn btn-success btn-sm"
+                                                                onclick="return confirm('Post freigeben?')">
+                                                            <i class="bi bi-check"></i> Freigeben
+                                                        </button>
+                                                    </form>
+                                                    <form method="post" action="{{ path('backoffice_moderation_reject', {id: post.id}) }}" 
+                                                          style="display: inline-block;">
+                                                        <button type="submit" class="btn btn-danger btn-sm"
+                                                                onclick="return confirm('Post ablehnen?')">
+                                                            <i class="bi bi-x"></i> Ablehnen
+                                                        </button>
+                                                    </form>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

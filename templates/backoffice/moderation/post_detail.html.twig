@@ -1,0 +1,208 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Moderation - {{ post.title }} - {{ parent() }}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ path('backoffice_dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ path('backoffice_moderation_index') }}">Moderation</a></li>
+                    <li class="breadcrumb-item active">Post-Details</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Post Content -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-1">{{ post.title }}</h4>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-primary">{{ post.category.name }}</span>
+                                {% set statusColor = post.status.value == 'submitted' ? 'warning' : 
+                                                    (post.status.value == 'approved' ? 'success' : 'danger') %}
+                                <span class="badge bg-{{ statusColor }}">
+                                    {% if post.status.value == 'submitted' %}
+                                        <i class="bi bi-clock-history"></i> Zu moderieren
+                                    {% elseif post.status.value == 'approved' %}
+                                        <i class="bi bi-check-circle"></i> Freigegeben
+                                    {% else %}
+                                        <i class="bi bi-x-circle"></i> Abgelehnt
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <small class="text-muted d-block">Eingereicht</small>
+                            <strong>{{ post.createdAt|date('d.m.Y H:i') }}</strong>
+                            {% if post.updatedAt %}
+                                <small class="text-muted d-block mt-1">Zuletzt bearbeitet</small>
+                                <strong class="small">{{ post.updatedAt|date('d.m.Y H:i') }}</strong>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5>Inhalt</h5>
+                        <div class="p-3 bg-light rounded">
+                            <p class="mb-0" style="white-space: pre-line;">{{ post.content }}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Author Information -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Autor-Informationen</h5>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <tr>
+                                        <th width="40%">Name:</th>
+                                        <td>{{ post.authorName ?: 'Nicht angegeben' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>E-Mail:</th>
+                                        <td>
+                                            <a href="mailto:{{ post.authorEmail }}">{{ post.authorEmail }}</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Name anzeigen:</th>
+                                        <td>
+                                            {% if post.showAuthorName %}
+                                                <span class="text-success"><i class="bi bi-check"></i> Ja</span>
+                                            {% else %}
+                                                <span class="text-muted"><i class="bi bi-x"></i> Nein</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h5>Event & Kategorie</h5>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <tr>
+                                        <th width="40%">Event:</th>
+                                        <td>{{ post.event.name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Kategorie:</th>
+                                        <td>
+                                            <span class="badge bg-primary">{{ post.category.name }}</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Interessen:</th>
+                                        <td>
+                                            {% if post.interests|length > 0 %}
+                                                <span class="text-success">
+                                                    <i class="bi bi-people"></i> {{ post.interests|length }}
+                                                </span>
+                                            {% else %}
+                                                <span class="text-muted">Keine</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Technical Information -->
+                    <div class="mt-4">
+                        <h5>Technische Informationen <small class="text-muted">(GDPR Audit Trail)</small></h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped">
+                                <tr>
+                                    <th width="20%">IP-Adresse:</th>
+                                    <td><code>{{ post.ipAddress ?: 'Nicht erfasst' }}</code></td>
+                                </tr>
+                                <tr>
+                                    <th>User-Agent:</th>
+                                    <td><small><code>{{ post.userAgent|u.truncate(100) ?: 'Nicht erfasst' }}</code></small></td>
+                                </tr>
+                                <tr>
+                                    <th>Post-ID:</th>
+                                    <td><code>#{{ post.id }}</code></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Moderation Actions -->
+                {% if post.status.canBeModerated() %}
+                    <div class="card-footer bg-light">
+                        <div class="d-flex justify-content-center gap-3">
+                            <form method="post" action="{{ path('backoffice_moderation_approve', {id: post.id}) }}" 
+                                  style="display: inline-block;">
+                                <button type="submit" class="btn btn-success"
+                                        onclick="return confirm('Post freigeben? Der Beitrag wird öffentlich sichtbar.')">
+                                    <i class="bi bi-check-circle me-2"></i>Post freigeben
+                                </button>
+                            </form>
+                            
+                            <form method="post" action="{{ path('backoffice_moderation_reject', {id: post.id}) }}" 
+                                  style="display: inline-block;">
+                                <button type="submit" class="btn btn-danger"
+                                        onclick="return confirm('Post ablehnen? Der Beitrag wird nicht veröffentlicht.')">
+                                    <i class="bi bi-x-circle me-2"></i>Post ablehnen
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Interests (if any) -->
+            {% if post.interests|length > 0 %}
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-people me-2"></i>
+                            Interessensbekundungen ({{ post.interests|length }})
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for interest in post.interests %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h6 class="card-title">{{ interest.name }}</h6>
+                                            <p class="card-text">
+                                                <i class="bi bi-envelope me-2"></i>
+                                                <a href="mailto:{{ interest.email }}">{{ interest.email }}</a>
+                                            </p>
+                                            <small class="text-muted">
+                                                <i class="bi bi-calendar3 me-2"></i>
+                                                {{ interest.createdAt|date('d.m.Y H:i') }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Navigation -->
+            <div class="mt-4 d-flex justify-content-center">
+                <a href="{{ path('backoffice_moderation_index') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Zurück zur Übersicht
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
