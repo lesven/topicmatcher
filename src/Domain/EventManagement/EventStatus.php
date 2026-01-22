@@ -55,6 +55,19 @@ enum EventStatus: string
     }
 
     /**
+     * Returns the order/priority of this status for timeline display
+     */
+    public function getOrder(): int
+    {
+        return match($this) {
+            self::DRAFT => 0,
+            self::ACTIVE => 1,
+            self::CLOSED => 2,
+            self::ARCHIVED => 3,
+        };
+    }
+
+    /**
      * Returns the human-readable label for this status
      */
     public function getLabel(): string
@@ -62,7 +75,7 @@ enum EventStatus: string
         return match($this) {
             self::DRAFT => 'Entwurf',
             self::ACTIVE => 'Aktiv',
-            self::CLOSED => 'Beendet',
+            self::CLOSED => 'Geschlossen',
             self::ARCHIVED => 'Archiviert',
         };
     }

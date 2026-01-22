@@ -24,20 +24,33 @@
                         <div>
                             <h4 class="mb-1">{{ event.name }}</h4>
                             <div class="d-flex align-items-center gap-2">
-                                {% set statusColor = event.status.value == 'draft' ? 'secondary' : 
-                                                    (event.status.value == 'active' ? 'success' : 
-                                                    (event.status.value == 'closed' ? 'warning' : 'dark')) %}
-                                <span class="badge bg-{{ statusColor }}">
-                                    {% if event.status.value == 'draft' %}
-                                        <i class="bi bi-file-earmark"></i> Entwurf
-                                    {% elseif event.status.value == 'active' %}
-                                        <i class="bi bi-play-circle"></i> Aktiv
-                                    {% elseif event.status.value == 'closed' %}
-                                        <i class="bi bi-stop-circle"></i> Geschlossen
-                                    {% else %}
-                                        <i class="bi bi-archive"></i> Archiviert
-                                    {% endif %}
-                                </span>
+                                {% if event.isTemplate %}
+                                    <span class="badge bg-primary">
+                                        <i class="fas fa-clone"></i> Template
+                                    </span>
+                                {% else %}
+                                    {% set statusColor = event.status.value == 'draft' ? 'secondary' : 
+                                                        (event.status.value == 'active' ? 'success' : 
+                                                        (event.status.value == 'closed' ? 'warning' : 'dark')) %}
+                                    <span class="badge bg-{{ statusColor }}">
+                                        {% if event.status.value == 'draft' %}
+                                            <i class="bi bi-file-earmark"></i> Entwurf
+                                        {% elseif event.status.value == 'active' %}
+                                            <i class="bi bi-play-circle"></i> Aktiv
+                                        {% elseif event.status.value == 'closed' %}
+                                            <i class="bi bi-stop-circle"></i> Geschlossen
+                                        {% else %}
+                                            <i class="bi bi-archive"></i> Archiviert
+                                        {% endif %}
+                                    </span>
+                                {% endif %}
+                                
+                                {% if event.templateSource %}
+                                    <span class="badge bg-secondary">
+                                        <i class="fas fa-copy"></i> 
+                                        Von Template: {{ event.templateSource.name }}
+                                    </span>
+                                {% endif %}
                             </div>
                         </div>
                         <div class="text-end">
@@ -221,7 +234,7 @@
                             </div>
                         </div>
                         
-                        <div class="timeline-item {{ event.status.value == 'active' ? 'active' : (event.status.ordinal() > 0 ? 'completed' : '') }}">
+                        <div class="timeline-item {{ event.status.value == 'active' ? 'active' : (event.status.getOrder() > 0 ? 'completed' : '') }}">
                             <div class="timeline-marker">
                                 <i class="bi bi-play-circle"></i>
                             </div>
@@ -231,7 +244,7 @@
                             </div>
                         </div>
                         
-                        <div class="timeline-item {{ event.status.value == 'closed' ? 'active' : (event.status.ordinal() > 1 ? 'completed' : '') }}">
+                        <div class="timeline-item {{ event.status.value == 'closed' ? 'active' : (event.status.getOrder() > 1 ? 'completed' : '') }}">
                             <div class="timeline-marker">
                                 <i class="bi bi-stop-circle"></i>
                             </div>
@@ -292,6 +305,37 @@
                             <i class="bi bi-plus-circle me-2"></i>
                             Test-Post erstellen
                         </a>
+                        
+                        <hr>
+                        
+                        <!-- Template-Aktionen -->
+                        <a href="{{ path('backoffice_events_duplicate', {slug: event.slug}) }}" 
+                           class="btn btn-outline-info">
+                            <i class="fas fa-copy me-2"></i>
+                            Event duplizieren
+                        </a>
+                        
+                        {% if not event.isTemplate %}
+                            <form method="post" action="{{ path('backoffice_events_toggle_template', {slug: event.slug}) }}" 
+                                  style="display: inline-block;" class="w-100">
+                                <input type="hidden" name="_token" value="{{ csrf_token('toggle_template' ~ event.id) }}">
+                                <button type="submit" class="btn btn-outline-primary w-100"
+                                        onclick="return confirm('Event als Template markieren? Es wird in der Template-Übersicht verfügbar.')">
+                                    <i class="fas fa-clone me-2"></i>
+                                    Als Template markieren
+                                </button>
+                            </form>
+                        {% else %}
+                            <form method="post" action="{{ path('backoffice_events_toggle_template', {slug: event.slug}) }}" 
+                                  style="display: inline-block;" class="w-100">
+                                <input type="hidden" name="_token" value="{{ csrf_token('toggle_template' ~ event.id) }}">
+                                <button type="submit" class="btn btn-outline-warning w-100"
+                                        onclick="return confirm('Template-Status entfernen? Event wird nicht mehr in der Template-Übersicht angezeigt.')">
+                                    <i class="fas fa-times me-2"></i>
+                                    Template-Status entfernen
+                                </button>
+                            </form>
+                        {% endif %}
                     </div>
                 </div>
             </div>

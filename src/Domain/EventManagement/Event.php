@@ -43,6 +43,13 @@ class Event
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
+    private bool $isTemplate = false;
+
+    #[ORM\ManyToOne(targetEntity: Event::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?Event $templateSource = null;
+
     /**
      * @var Collection<int, Category>
      */
@@ -200,6 +207,58 @@ class Event
     public function getUpdatedAt(): ?\DateTimeImmutable
     {
         return $this->updatedAt;
+    }
+
+    public function isTemplate(): bool
+    {
+        return $this->isTemplate;
+    }
+
+    public function setTemplate(bool $isTemplate): void
+    {
+        $this->isTemplate = $isTemplate;
+        $this->touch();
+    }
+
+    public function getTemplateSource(): ?Event
+    {
+        return $this->templateSource;
+    }
+
+    public function setTemplateSource(?Event $templateSource): void
+    {
+        $this->templateSource = $templateSource;
+    }
+
+    /**
+     * Creates a duplicate of this event for template usage
+     */
+    public function createDuplicate(string $newName, string $newSlug, bool $copyCategories = true): Event
+    {
+        $duplicate = new Event(
+            $newName,
+            $newSlug,
+            $this->description,
+            null, // Reset event date for new event
+            $this->location
+        );
+        
+        $duplicate->setTemplateSource($this);
+        
+        if ($copyCategories) {
+            foreach ($this->categories as $category) {
+                $newCategory = new Category(
+                    $duplicate,
+                    $category->getName(),
+                    $category->getColor(),
+                    $category->getDescription()
+                );
+                $newCategory->setSortOrder($category->getSortOrder());
+                $duplicate->addCategory($newCategory);
+            }
+        }
+        
+        return $duplicate;
     }
 
     /**

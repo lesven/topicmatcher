@@ -41,8 +41,8 @@
                                         📅 {{ event.eventDate|date('d.m.Y') }}
                                     {% endif %}
                                 </small>
-                                <span class="badge bg-{{ event.status.color }}">
-                                    {{ event.status.label }}
+                                <span class="badge bg-{{ event.status.getColor() }}">
+                                    {{ event.status.getLabel() }}
                                 </span>
                             </div>
                         </div>

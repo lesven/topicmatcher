@@ -116,4 +116,41 @@ class EventRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    /**
+     * @return Event[]
+     */
+    public function findTemplates(): array
+    {
+        return $this->createQueryBuilder('e')
+            ->andWhere('e.isTemplate = true')
+            ->orderBy('e.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return Event[]
+     */
+    public function findNonTemplates(): array
+    {
+        return $this->createQueryBuilder('e')
+            ->andWhere('e.isTemplate = false')
+            ->orderBy('e.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function generateUniqueSlug(string $baseSlug): string
+    {
+        $slug = $baseSlug;
+        $counter = 1;
+        
+        while ($this->findOneBySlug($slug)) {
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+        }
+        
+        return $slug;
+    }
 }

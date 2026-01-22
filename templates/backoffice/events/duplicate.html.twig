@@ -1,0 +1,239 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Event duplizieren - {{ parent() }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="mb-4">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="{{ path('backoffice_dashboard') }}">Dashboard</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{{ path('backoffice_events_index') }}">Events</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{{ path('backoffice_events_templates') }}">Templates</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">Duplizieren</li>
+                    </ol>
+                </nav>
+                <h1 class="h3">Event duplizieren</h1>
+                <p class="text-muted">
+                    Erstellen Sie ein neues Event basierend auf <strong>{{ sourceEvent.name }}</strong>
+                </p>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Duplikations-Formular -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-copy"></i> Neues Event erstellen
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {{ form_start(form) }}
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    {{ form_row(form.name, {
+                                        'label': 'Event-Name',
+                                        'help': 'Eindeutiger Name für das neue Event'
+                                    }) }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form_row(form.slug, {
+                                        'label': 'URL-Slug',
+                                        'help': 'Wird automatisch aus dem Namen generiert'
+                                    }) }}
+                                </div>
+                            </div>
+
+                            {{ form_row(form.description, {
+                                'label': 'Beschreibung',
+                                'help': 'Kurze Beschreibung des Events'
+                            }) }}
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    {{ form_row(form.location, {
+                                        'label': 'Veranstaltungsort',
+                                        'help': 'Optional: Ort der Veranstaltung'
+                                    }) }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form_row(form.website, {
+                                        'label': 'Website',
+                                        'help': 'Optional: Event-Website'
+                                    }) }}
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    {{ form_row(form.startDate, {
+                                        'label': 'Startdatum',
+                                        'widget': 'single_text'
+                                    }) }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form_row(form.endDate, {
+                                        'label': 'Enddatum',
+                                        'widget': 'single_text'
+                                    }) }}
+                                </div>
+                            </div>
+
+                            {{ form_row(form.copyCategories, {
+                                'label': 'Kategorien kopieren',
+                                'help': 'Alle Kategorien vom Original-Event übernehmen'
+                            }) }}
+
+                            {% if sourceEvent.isTemplate %}
+                                {{ form_row(form.markAsTemplate, {
+                                    'label': 'Als Template markieren',
+                                    'help': 'Das neue Event ebenfalls als Template verfügbar machen'
+                                }) }}
+                            {% endif %}
+
+                            <div class="d-flex justify-content-between pt-3 border-top">
+                                <a href="{{ path('backoffice_events_templates') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left"></i> Zurück zu Templates
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-copy"></i> Event erstellen
+                                </button>
+                            </div>
+
+                            {{ form_end(form) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <!-- Original-Event Info -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">
+                                <i class="fas fa-info-circle"></i> Original-Event
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="mb-0">{{ sourceEvent.name }}</h6>
+                                {% if sourceEvent.isTemplate %}
+                                    <span class="badge bg-primary">
+                                        <i class="fas fa-clone"></i> Template
+                                    </span>
+                                {% else %}
+                                    {% set statusColor = sourceEvent.status.value == 'draft' ? 'secondary' : 
+                                                        (sourceEvent.status.value == 'active' ? 'success' : 
+                                                        (sourceEvent.status.value == 'closed' ? 'warning' : 'dark')) %}
+                                    <span class="badge bg-{{ statusColor }}">
+                                        {{ sourceEvent.status.getLabel() }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                            
+                            {% if sourceEvent.description %}
+                                <p class="text-muted small mb-3">{{ sourceEvent.description }}</p>
+                            {% endif %}
+
+                            <div class="small text-muted">
+                                {% if sourceEvent.startDate %}
+                                    <div class="mb-1">
+                                        <i class="fas fa-calendar"></i>
+                                        {{ sourceEvent.startDate|date('d.m.Y') }}
+                                        {% if sourceEvent.endDate %}
+                                            - {{ sourceEvent.endDate|date('d.m.Y') }}
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                                
+                                {% if sourceEvent.location %}
+                                    <div class="mb-1">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        {{ sourceEvent.location }}
+                                    </div>
+                                {% endif %}
+                                
+                                <div class="mb-1">
+                                    <i class="fas fa-tags"></i>
+                                    {{ sourceEvent.categoriesCount }} Kategorien
+                                </div>
+                                
+                                <div class="mb-1">
+                                    <i class="fas fa-clock"></i>
+                                    Erstellt {{ sourceEvent.createdAt|date('d.m.Y H:i') }}
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <div class="d-grid">
+                                <a href="{{ path('backoffice_events_detail', {slug: sourceEvent.slug}) }}" 
+                                   class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-eye"></i> Original anzeigen
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if sourceEvent.categories is not empty %}
+                        <!-- Kategorien-Vorschau -->
+                        <div class="card mt-3">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">
+                                    <i class="fas fa-tags"></i> Kategorien ({{ sourceEvent.categories|length }})
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-2">
+                                    {% for category in sourceEvent.categories|slice(0, 6) %}
+                                        <span class="badge bg-light text-dark border me-1 mb-1">
+                                            {{ category.name }}
+                                        </span>
+                                    {% endfor %}
+                                    {% if sourceEvent.categories|length > 6 %}
+                                        <span class="text-muted small">
+                                            ... und {{ sourceEvent.categories|length - 6 }} weitere
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                <small class="text-muted">
+                                    Diese Kategorien werden kopiert, wenn "Kategorien kopieren" aktiviert ist.
+                                </small>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-generate slug from name
+    const nameField = document.getElementById('{{ form.name.vars.id }}');
+    const slugField = document.getElementById('{{ form.slug.vars.id }}');
+    
+    if (nameField && slugField) {
+        nameField.addEventListener('input', function() {
+            const slug = this.value
+                .toLowerCase()
+                .replace(/[^a-z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .trim('-');
+            slugField.value = slug;
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -298,4 +298,93 @@ class EventManagementController extends AbstractController
             return new JsonResponse(['success' => false, 'message' => 'Fehler beim Verarbeiten: ' . $e->getMessage()], 500);
         }
     }
+
+    #[Route('/templates', name: 'backoffice_events_templates', methods: ['GET'])]
+    public function templates(): Response
+    {
+        $templates = $this->eventRepository->findTemplates();
+        $regularEvents = $this->eventRepository->findNonTemplates();
+        
+        return $this->render('backoffice/events/templates.html.twig', [
+            'templates' => $templates,
+            'regularEvents' => $regularEvents,
+        ]);
+    }
+
+    #[Route('/{slug}/duplicate', name: 'backoffice_events_duplicate', methods: ['GET', 'POST'])]
+    public function duplicate(Request $request, string $slug): Response
+    {
+        $sourceEvent = $this->eventRepository->findOneBySlug($slug);
+        if (!$sourceEvent) {
+            throw $this->createNotFoundException('Event nicht gefunden.');
+        }
+
+        if ($request->isMethod('POST')) {
+            try {
+                $newName = trim($request->request->get('name', ''));
+                $copyCategories = (bool) $request->request->get('copyCategories', false);
+                $makeTemplate = (bool) $request->request->get('makeTemplate', false);
+
+                if (empty($newName)) {
+                    throw new \Exception('Name ist erforderlich.');
+                }
+
+                // Generate unique slug
+                $baseSlug = strtolower(preg_replace('/[^A-Za-z0-9]+/', '-', $newName));
+                $baseSlug = trim($baseSlug, '-');
+                $newSlug = $this->eventRepository->generateUniqueSlug($baseSlug);
+
+                // Create duplicate
+                $newEvent = $sourceEvent->createDuplicate($newName, $newSlug, $copyCategories);
+                
+                if ($makeTemplate) {
+                    $newEvent->setTemplate(true);
+                }
+
+                $this->entityManager->persist($newEvent);
+                $this->entityManager->flush();
+
+                $this->addFlash('success', sprintf('Event "%s" wurde erfolgreich %s erstellt.', $newName, $makeTemplate ? 'als Template' : 'dupliziert'));
+                
+                return $this->redirectToRoute('backoffice_events_detail', ['slug' => $newEvent->getSlug()]);
+                
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Fehler beim Duplizieren: ' . $e->getMessage());
+            }
+        }
+
+        return $this->render('backoffice/events/duplicate.html.twig', [
+            'sourceEvent' => $sourceEvent,
+        ]);
+    }
+
+    #[Route('/{slug}/toggle-template', name: 'backoffice_events_toggle_template', methods: ['POST'])]
+    public function toggleTemplate(Request $request, string $slug): Response
+    {
+        $event = $this->eventRepository->findOneBySlug($slug);
+        if (!$event) {
+            throw $this->createNotFoundException('Event nicht gefunden.');
+        }
+
+        if (!$this->isCsrfTokenValid('toggle_template'.$event->getId(), $request->request->get('_token'))) {
+            $this->addFlash('error', 'Ungültiger CSRF-Token.');
+            return $this->redirectToRoute('backoffice_events_detail', ['slug' => $event->getSlug()]);
+        }
+
+        try {
+            $event->setTemplate(!$event->isTemplate());
+            $this->entityManager->flush();
+            
+            $message = $event->isTemplate() 
+                ? sprintf('Event "%s" wurde als Template markiert.', $event->getName())
+                : sprintf('Event "%s" ist kein Template mehr.', $event->getName());
+                
+            $this->addFlash('success', $message);
+            
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Fehler beim Ändern des Template-Status: ' . $e->getMessage());
+        }
+
+        return $this->redirectToRoute('backoffice_events_detail', ['slug' => $event->getSlug()]);
+    }
 }

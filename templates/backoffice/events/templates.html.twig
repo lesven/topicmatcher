@@ -1,0 +1,195 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Event-Templates - {{ parent() }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3">Event-Templates & Duplikation</h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="{{ path('backoffice_dashboard') }}">Dashboard</a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <a href="{{ path('backoffice_events_index') }}">Events</a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">Templates</li>
+                        </ol>
+                    </nav>
+                </div>
+                <a href="{{ path('backoffice_events_create') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Neues Event
+                </a>
+            </div>
+
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            {% for message in app.flashes('error') %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            <!-- Event Templates Section -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-clone text-primary"></i>
+                        Event-Templates
+                        <span class="badge bg-secondary ms-2">{{ templates|length }}</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if templates is empty %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-clone fa-3x text-muted mb-3"></i>
+                            <h4>Keine Templates verfügbar</h4>
+                            <p class="text-muted">
+                                Markieren Sie bestehende Events als Templates, um sie für neue Events zu verwenden.
+                            </p>
+                        </div>
+                    {% else %}
+                        <div class="row">
+                            {% for template in templates %}
+                                <div class="col-md-6 col-lg-4 mb-3">
+                                    <div class="card border-primary">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <h6 class="card-title mb-0">{{ template.name }}</h6>
+                                                <span class="badge bg-primary">
+                                                    <i class="fas fa-clone"></i> Template
+                                                </span>
+                                            </div>
+                                            
+                                            {% if template.description %}
+                                                <p class="card-text text-muted small">{{ template.description|u.truncate(80) }}</p>
+                                            {% endif %}
+                                            
+                                            <div class="text-muted small mb-3">
+                                                <i class="fas fa-tags"></i> {{ template.categoriesCount }} Kategorien
+                                                {% if template.location %}
+                                                    <br><i class="fas fa-map-marker-alt"></i> {{ template.location }}
+                                                {% endif %}
+                                            </div>
+                                            
+                                            <div class="d-grid gap-2">
+                                                <a href="{{ path('backoffice_events_duplicate', {slug: template.slug}) }}" 
+                                                   class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-copy"></i> Event erstellen
+                                                </a>
+                                                <a href="{{ path('backoffice_events_detail', {slug: template.slug}) }}" 
+                                                   class="btn btn-outline-secondary btn-sm">
+                                                    <i class="fas fa-eye"></i> Details
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Regular Events Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-calendar-alt text-success"></i>
+                        Bestehende Events duplizieren
+                        <span class="badge bg-secondary ms-2">{{ regularEvents|length }}</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if regularEvents is empty %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-alt fa-3x text-muted mb-3"></i>
+                            <h4>Keine Events verfügbar</h4>
+                            <p class="text-muted">Erstellen Sie zuerst ein Event, bevor Sie es duplizieren können.</p>
+                            <a href="{{ path('backoffice_events_create') }}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Erstes Event erstellen
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Event-Name</th>
+                                        <th>Status</th>
+                                        <th>Kategorien</th>
+                                        <th>Erstellt</th>
+                                        <th class="text-end">Aktionen</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for event in regularEvents %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div>
+                                                        <strong>{{ event.name }}</strong>
+                                                        {% if event.templateSource %}
+                                                            <br>
+                                                            <small class="text-muted">
+                                                                <i class="fas fa-clone"></i>
+                                                                Von: {{ event.templateSource.name }}
+                                                            </small>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {% set statusColor = event.status.value == 'draft' ? 'secondary' : 
+                                                                    (event.status.value == 'active' ? 'success' : 
+                                                                    (event.status.value == 'closed' ? 'warning' : 'dark')) %}
+                                                <span class="badge bg-{{ statusColor }}">
+                                                    {{ event.status.getLabel() }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-light text-dark">
+                                                    {{ event.categoriesCount }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">
+                                                    {{ event.createdAt|date('d.m.Y H:i') }}
+                                                </small>
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="{{ path('backoffice_events_duplicate', {slug: event.slug}) }}" 
+                                                       class="btn btn-outline-primary" 
+                                                       title="Duplizieren">
+                                                        <i class="fas fa-copy"></i>
+                                                    </a>
+                                                    <a href="{{ path('backoffice_events_detail', {slug: event.slug}) }}" 
+                                                       class="btn btn-outline-secondary" 
+                                                       title="Details">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
