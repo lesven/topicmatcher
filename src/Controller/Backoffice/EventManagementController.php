@@ -19,6 +19,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/admin/events')]
 #[IsGranted('ROLE_ADMIN')]
+/**
+ * Controller to manage Events in the backoffice (CRUD + lifecycle actions).
+ */
 class EventManagementController extends AbstractController
 {
     /**
@@ -463,13 +466,15 @@ class EventManagementController extends AbstractController
         ]);
     }
 
-    #[Route('/{slug}/toggle-template', name: 'backoffice_events_toggle_template', methods: ['POST'])]    /**
+    #[Route('/{slug}/toggle-template', name: 'backoffice_events_toggle_template', methods: ['POST'])]
+    /**
      * Schaltet das Template-Flag eines Events um (POST).
      *
      * @param Request $request Request mit CSRF-Token
      * @param string $slug Event-Slug
      * @return Response Redirect zur Event-Detailseite
-     */    public function toggleTemplate(Request $request, string $slug): Response
+     */
+    public function toggleTemplate(Request $request, string $slug): Response
     {
         $event = $this->eventRepository->findOneBySlug($slug);
         if (!$event) {

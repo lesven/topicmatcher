@@ -11,12 +11,29 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 readonly class InterestSubmissionService
 {
+    /**
+     * InterestSubmissionService constructor.
+     *
+     * @param InterestRepository $interestRepository
+     * @param RequestStack $requestStack
+     */
     public function __construct(
         private InterestRepository $interestRepository,
         private RequestStack $requestStack
     ) {
     }
 
+    /**
+     * Submit a new interest for a post.
+     *
+     * @param Post $post The post to attach the interest to
+     * @param string $name Submitter name
+     * @param string $email Submitter email
+     * @param bool $privacyAccepted Whether privacy terms were accepted
+     * @param string|null $message Optional message
+     * @return Interest The created Interest entity
+     * @throws \InvalidArgumentException When a duplicate interest is detected
+     */
     public function submitInterest(
         Post $post,
         string $name,
@@ -49,6 +66,13 @@ readonly class InterestSubmissionService
         return $interest;
     }
 
+    /**
+     * Check whether an interest with the same email already exists for the given post.
+     *
+     * @param Post $post The post to check
+     * @param string $email The email to check for duplicates
+     * @return bool True when a duplicate exists
+     */
     public function isDuplicateInterest(Post $post, string $email): bool
     {
         return $this->interestRepository->isDuplicateInterest($post, $email);
@@ -62,6 +86,12 @@ readonly class InterestSubmissionService
         return $this->interestRepository->findByPost($post);
     }
 
+    /**
+     * Get the number of interests for a given post.
+     *
+     * @param Post $post The post to count interests for
+     * @return int The number of interests
+     */
     public function getInterestCount(Post $post): int
     {
         return $this->interestRepository->countByPost($post);

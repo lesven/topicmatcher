@@ -13,10 +13,14 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
 
 /**
+ * Repository for BackofficeUser entities and password upgrading.
  * @extends ServiceEntityRepository<BackofficeUser>
  */
 class BackofficeUserRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
 {
+    /**
+     * BackofficeUserRepository constructor.
+     */
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, BackofficeUser::class);
@@ -76,6 +80,12 @@ class BackofficeUserRepository extends ServiceEntityRepository implements Passwo
             ->getResult();
     }
 
+    /**
+     * Find a BackofficeUser by email.
+     *
+     * @param string $email Email address to search for
+     * @return BackofficeUser|null The user or null if not found
+     */
     public function findByEmail(string $email): ?BackofficeUser
     {
         return $this->findOneBy(['email' => $email]);

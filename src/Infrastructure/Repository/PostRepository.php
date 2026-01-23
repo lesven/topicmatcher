@@ -11,21 +11,37 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
+ * Repository for Post entities (read/write operations).
+ *
+ * Encapsulates common queries used by the application and backoffice.
  * @extends ServiceEntityRepository<Post>
  */
 class PostRepository extends ServiceEntityRepository
 {
+    /**
+     * PostRepository constructor.
+     */
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Post::class);
     }
 
+    /**
+     * Persist and flush a Post entity.
+     *
+     * @param Post $post The post to save
+     */
     public function save(Post $post): void
     {
         $this->getEntityManager()->persist($post);
         $this->getEntityManager()->flush();
     }
 
+    /**
+     * Remove and flush a Post entity.
+     *
+     * @param Post $post The post to remove
+     */
     public function remove(Post $post): void
     {
         $this->getEntityManager()->remove($post);

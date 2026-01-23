@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Domain\EventManagement;
 
+/**
+ * Enum representing the possible statuses of an Event and helper methods
+ * to determine permissions and display attributes for each status.
+ */
 enum EventStatus: string
 {
     case DRAFT = 'draft';

@@ -10,6 +10,13 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Domain entity representing a user-submitted Post.
+ *
+ * Contains author details (email is private), content, moderation state
+ * and related interests. Business rules (moderation, privacy) are
+ * enforced on the entity methods.
+ */
 #[ORM\Entity]
 #[ORM\Table(name: 'posts')]
 #[ORM\Index(name: 'idx_posts_status', columns: ['status'])]

@@ -10,6 +10,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Domain aggregate representing an Event (conference/trade show).
+ *
+ * Manages event lifecycle (draft -> active -> closed -> archived) and categories.
+ */
 #[ORM\Entity]
 #[ORM\Table(name: 'events')]
 class Event

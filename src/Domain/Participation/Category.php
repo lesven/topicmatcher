@@ -10,6 +10,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Domain entity representing a Category within an Event.
+ *
+ * Categories group posts and carry display metadata (color, sort order).
+ */
 #[ORM\Entity]
 #[ORM\Table(name: 'categories')]
 class Category

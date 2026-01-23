@@ -14,8 +14,19 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * Form type for submitting an interest for a post.
+ *
+ * Includes name, email, optional message and privacy acceptance.
+ */
 class InterestSubmissionType extends AbstractType
 {
+    /**
+     * Build the interest submission form.
+     *
+     * @param FormBuilderInterface $builder The form builder
+     * @param array $options Form options
+     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -78,6 +89,11 @@ class InterestSubmissionType extends AbstractType
             ]);
     }
 
+    /**
+     * Configure default options for the form.
+     *
+     * @param OptionsResolver $resolver The options resolver
+     */
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([

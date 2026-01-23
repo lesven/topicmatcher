@@ -14,6 +14,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+/**
+ * Backoffice moderation controller for approving and rejecting posts.
+ */
 #[Route('/admin/moderation')]
 #[IsGranted('ROLE_MODERATOR')]
 class ModerationController extends AbstractController

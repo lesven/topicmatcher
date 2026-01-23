@@ -6,6 +6,9 @@ namespace App\Application\Participation\Dto;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * DTO for interest submission form data and validation constraints.
+ */
 class InterestSubmissionDto
 {
     #[Assert\NotBlank(message: 'Name ist erforderlich')]

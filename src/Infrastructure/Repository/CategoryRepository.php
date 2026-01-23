@@ -10,15 +10,27 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
+ * Repository for Category entities.
+ *
+ * Provides helper methods for finding and ordering categories per event.
  * @extends ServiceEntityRepository<Category>
  */
 class CategoryRepository extends ServiceEntityRepository
 {
+    /**
+     * CategoryRepository constructor.
+     */
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Category::class);
     }
 
+    /**
+     * Persist a Category and optionally flush.
+     *
+     * @param Category $category The category to persist
+     * @param bool $flush Whether to flush immediately
+     */
     public function save(Category $category, bool $flush = false): void
     {
         $this->getEntityManager()->persist($category);
@@ -28,6 +40,12 @@ class CategoryRepository extends ServiceEntityRepository
         }
     }
 
+    /**
+     * Remove a Category and optionally flush.
+     *
+     * @param Category $category The category to remove
+     * @param bool $flush Whether to flush immediately
+     */
     public function remove(Category $category, bool $flush = false): void
     {
         $this->getEntityManager()->remove($category);
@@ -86,6 +104,11 @@ class CategoryRepository extends ServiceEntityRepository
 
     /**
      * Updates sort order for multiple categories in one transaction
+     */
+    /**
+     * Update sort orders for multiple categories in a single transaction.
+     *
+     * @param array $categoryIdToSortOrder Map of category id => sort order
      */
     public function updateSortOrders(array $categoryIdToSortOrder): void
     {

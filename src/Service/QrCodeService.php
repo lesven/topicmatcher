@@ -11,13 +11,28 @@ use Endroid\QrCode\ErrorCorrectionLevel;
 use Endroid\QrCode\Color\Color;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
+/**
+ * Service responsible for generating QR codes (Data URIs) for URLs used in the public site.
+ */
 class QrCodeService
 {
+    /**
+     * QrCodeService constructor.
+     *
+     * @param UrlGeneratorInterface $urlGenerator URL generator used to build absolute links
+     */
     public function __construct(
         private readonly UrlGeneratorInterface $urlGenerator
     ) {
     }
 
+    /**
+     * Generate a QR code for the given route and return it as a data URI.
+     *
+     * @param string $route Route name to generate URL for
+     * @param array $parameters Route parameters
+     * @return string Data URI containing the QR code image
+     */
     public function generateQrCodeDataUri(string $route, array $parameters = []): string
     {
         // Generate absolute URL
@@ -48,6 +63,13 @@ class QrCodeService
         }
     }
 
+    /**
+     * Generate a data URI QR code that links to the interest form for a post.
+     *
+     * @param string $eventSlug Event slug
+     * @param int $postId Post id
+     * @return string QR code data URI
+     */
     public function generateInterestQrCode(string $eventSlug, int $postId): string
     {
         return $this->generateQrCodeDataUri('post_interest', [

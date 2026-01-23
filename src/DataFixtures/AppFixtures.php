@@ -15,13 +15,26 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
+/**
+ * Doctrine fixtures for initial demo data (users, events, categories, posts).
+ */
 class AppFixtures extends Fixture
 {
+    /**
+     * AppFixtures constructor.
+     *
+     * @param UserPasswordHasherInterface $passwordHasher Password hasher for demo users
+     */
     public function __construct(
         private UserPasswordHasherInterface $passwordHasher
     ) {
     }
 
+    /**
+     * Load initial data into the database.
+     *
+     * @param ObjectManager $manager The Doctrine object manager
+     */
     public function load(ObjectManager $manager): void
     {
         // Backoffice Users

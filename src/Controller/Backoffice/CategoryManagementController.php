@@ -16,6 +16,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+/**
+ * Controller for managing categories within an event (create/edit/delete/reorder).
+ */
 #[Route('/admin/events/{slug}/categories')]
 #[IsGranted('ROLE_ADMIN')]
 class CategoryManagementController extends AbstractController

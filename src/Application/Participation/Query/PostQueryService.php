@@ -11,6 +11,11 @@ use App\Infrastructure\Repository\PostRepository;
 
 readonly class PostQueryService
 {
+    /**
+     * PostQueryService constructor.
+     *
+     * @param PostRepository $postRepository Repository for Post read operations
+     */
     public function __construct(
         private PostRepository $postRepository
     ) {
@@ -40,13 +45,23 @@ readonly class PostQueryService
         return $this->postRepository->findByEventAndStatus($event, $status);
     }
 
+    /**
+     * Count posts for an event filtered by status.
+     *
+     * @param Event $event The event to count posts for
+     * @param PostStatus $status The status to filter by
+     * @return int Number of posts matching the criteria
+     */
     public function countByEventAndStatus(Event $event, PostStatus $status): int
     {
         return $this->postRepository->countByEventAndStatus($event, $status);
     }
 
     /**
-     * Group approved posts by category for display
+     * Group approved posts by category for display.
+     *
+     * @param Event $event The event to get posts for
+     * @return array<string,array{category:object,posts:array}> Grouped posts keyed by category name
      */
     public function getApprovedPostsGroupedByCategory(Event $event): array
     {

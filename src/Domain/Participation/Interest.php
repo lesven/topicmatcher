@@ -7,6 +7,11 @@ namespace App\Domain\Participation;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Domain entity representing an Interest (a contact request) for a Post.
+ *
+ * Enforces unique constraint per (post, email) to prevent duplicates.
+ */
 #[ORM\Entity]
 #[ORM\Table(name: 'interests')]
 #[ORM\UniqueConstraint(name: 'unique_interest_per_post_email', columns: ['post_id', 'email'])]

@@ -10,6 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+/**
+ * Backoffice dashboard controller displaying stats and recent activities.
+ */
 #[Route('/admin')]
 #[IsGranted('ROLE_MODERATOR')]
 class DashboardController extends AbstractController

@@ -9,6 +9,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
+/**
+ * Domain entity representing a Backoffice user with roles and permissions.
+ *
+ * Implements Symfony's UserInterface for authentication and authorization.
+ */
 #[ORM\Entity]
 #[ORM\Table(name: 'backoffice_users')]
 #[ORM\UniqueConstraint(name: 'unique_email', columns: ['email'])]

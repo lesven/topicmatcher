@@ -19,6 +19,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * Controller for public event pages: show event, create post and submit interests.
+ */
 class EventController extends AbstractController
 {
     /**

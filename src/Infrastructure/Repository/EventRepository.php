@@ -10,10 +10,14 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
+ * Repository for Event entities (read/write and query helpers).
  * @extends ServiceEntityRepository<Event>
  */
 class EventRepository extends ServiceEntityRepository
 {
+    /**
+     * EventRepository constructor.
+     */
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Event::class);
@@ -31,6 +35,12 @@ class EventRepository extends ServiceEntityRepository
         $this->getEntityManager()->flush();
     }
 
+    /**
+     * Find an Event by its slug.
+     *
+     * @param string $slug Event slug
+     * @return Event|null The found Event or null
+     */
     public function findBySlug(string $slug): ?Event
     {
         return $this->findOneBy(['slug' => $slug]);
@@ -141,6 +151,13 @@ class EventRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * Generate a unique slug based on a base slug by appending a numeric
+     * suffix until the slug is unique.
+     *
+     * @param string $baseSlug The base slug to start from
+     * @return string A unique slug
+     */
     public function generateUniqueSlug(string $baseSlug): string
     {
         $slug = $baseSlug;

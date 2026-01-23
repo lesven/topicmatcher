@@ -11,6 +11,13 @@ use App\Infrastructure\Repository\EventRepository;
 
 readonly class ModerationQueryService
 {
+    /**
+     * ModerationQueryService constructor.
+     *
+     * @param PostRepository $postRepository
+     * @param InterestRepository $interestRepository
+     * @param EventRepository $eventRepository
+     */
     public function __construct(
         private PostRepository $postRepository,
         private InterestRepository $interestRepository,
@@ -18,6 +25,11 @@ readonly class ModerationQueryService
     ) {
     }
 
+    /**
+     * Gather moderation dashboard statistics.
+     *
+     * @return array<string,int> Associative array with counts for dashboard display
+     */
     public function getDashboardStats(): array
     {
         return [
@@ -30,11 +42,25 @@ readonly class ModerationQueryService
         ];
     }
 
+    /**
+     * Return a list of pending posts for moderation.
+     *
+     * @param int $limit Maximum number of posts to return
+     * @return array List of pending posts
+     */
     public function getPendingPosts(int $limit = 10): array
     {
         return $this->postRepository->findByStatus(PostStatus::SUBMITTED, $limit);
     }
 
+    /**
+     * Return recent moderation activity entries for the dashboard.
+     *
+     * Each entry contains keys: title, description, type, createdAt and post.
+     *
+     * @param int $limit Maximum number of activity entries to return
+     * @return array List of activity arrays
+     */
     public function getRecentModerationActivity(int $limit = 10): array
     {
         // Get recently moderated posts (approved/rejected)

@@ -13,8 +13,17 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * Form type used to duplicate an Event or create a template from a source Event.
+ */
 class EventDuplicateType extends AbstractType
 {
+    /**
+     * Build duplicate event form with pre-filled values from the source event.
+     *
+     * @param FormBuilderInterface $builder The form builder
+     * @param array $options Form options (requires 'source_event')
+     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $sourceEvent = $options['source_event'];
@@ -130,6 +139,11 @@ class EventDuplicateType extends AbstractType
         }
     }
 
+    /**
+     * Configure default options for the duplicate event form.
+     *
+     * @param OptionsResolver $resolver The options resolver
+     */
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([

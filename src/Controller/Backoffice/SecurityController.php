@@ -9,6 +9,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
+/**
+ * Backoffice security controller handling login/logout.
+ */
 #[Route('/admin')]
 class SecurityController extends AbstractController
 {

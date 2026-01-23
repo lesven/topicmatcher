@@ -9,18 +9,31 @@ use App\Infrastructure\Repository\EventRepository;
 
 readonly class EventQueryService
 {
+    /**
+     * EventQueryService constructor.
+     *
+     * @param EventRepository $eventRepository Repository for Event read operations
+     */
     public function __construct(
         private EventRepository $eventRepository
     ) {
     }
 
+    /**
+     * Find an Event by its slug.
+     *
+     * @param string $slug The event slug
+     * @return Event|null The matching Event or null if not found
+     */
     public function findBySlug(string $slug): ?Event
     {
         return $this->eventRepository->findBySlug($slug);
     }
 
     /**
-     * @return Event[]
+     * Return events visible to the public.
+     *
+     * @return Event[] List of publicly visible events
      */
     public function findPubliclyVisible(): array
     {
@@ -28,7 +41,9 @@ readonly class EventQueryService
     }
 
     /**
-     * @return Event[]
+     * Return currently active events.
+     *
+     * @return Event[] List of active events
      */
     public function findActive(): array
     {
@@ -36,7 +51,9 @@ readonly class EventQueryService
     }
 
     /**
-     * @return Event[]
+     * Return events eligible for export.
+     *
+     * @return Event[] List of exportable events
      */
     public function findExportable(): array
     {

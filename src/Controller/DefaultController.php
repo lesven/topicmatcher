@@ -9,6 +9,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * Public default controller (homepage and legacy routes).
+ */
 class DefaultController extends AbstractController
 {
     /**

@@ -10,15 +10,26 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
+ * Repository for Interest entities.
+ *
+ * Responsible for persistence and duplicate checks for interests.
  * @extends ServiceEntityRepository<Interest>
  */
 class InterestRepository extends ServiceEntityRepository
 {
+    /**
+     * InterestRepository constructor.
+     */
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Interest::class);
     }
 
+    /**
+     * Persist and flush an Interest entity.
+     *
+     * @param Interest $interest The interest to save
+     */
     public function save(Interest $interest): void
     {
         $this->getEntityManager()->persist($interest);
@@ -31,6 +42,13 @@ class InterestRepository extends ServiceEntityRepository
         $this->getEntityManager()->flush();
     }
 
+    /**
+     * Find an Interest by post and email.
+     *
+     * @param Post $post The post to search in
+     * @param string $email The email to search for
+     * @return Interest|null Found interest or null
+     */
     public function findByPostAndEmail(Post $post, string $email): ?Interest
     {
         return $this->findOneBy(['post' => $post, 'email' => $email]);
@@ -60,7 +78,11 @@ class InterestRepository extends ServiceEntityRepository
     }
 
     /**
-     * Check if duplicate interest exists (implements business rule)
+     * Check if a duplicate interest exists for the given post and email.
+     *
+     * @param Post $post The post to check
+     * @param string $email Email to check for
+     * @return bool True when a duplicate exists
      */
     public function isDuplicateInterest(Post $post, string $email): bool
     {

@@ -14,8 +14,17 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * Backoffice form type to create or edit a Category.
+ */
 class CategoryType extends AbstractType
 {
+    /**
+     * Build the category form fields.
+     *
+     * @param FormBuilderInterface $builder The form builder
+     * @param array $options Form options
+     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -78,6 +87,11 @@ class CategoryType extends AbstractType
             ]);
     }
 
+    /**
+     * Configure form options for the category type.
+     *
+     * @param OptionsResolver $resolver The options resolver
+     */
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
