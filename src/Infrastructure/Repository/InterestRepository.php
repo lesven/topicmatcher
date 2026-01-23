@@ -67,6 +67,12 @@ class InterestRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * Zähle Interessen für einen Post.
+     *
+     * @param Post $post Das Post-Objekt
+     * @return int Anzahl der Interessen
+     */
     public function countByPost(Post $post): int
     {
         return (int) $this->createQueryBuilder('i')
@@ -89,6 +95,11 @@ class InterestRepository extends ServiceEntityRepository
         return $this->findByPostAndEmail($post, $email) !== null;
     }
 
+    /**
+     * Zähle alle Interessen.
+     *
+     * @return int Gesamtanzahl der Interessen
+     */
     public function getTotalCount(): int
     {
         return (int) $this->createQueryBuilder('i')

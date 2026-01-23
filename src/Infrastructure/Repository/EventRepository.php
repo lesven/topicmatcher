@@ -85,6 +85,11 @@ class EventRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * Zähle alle Events.
+     *
+     * @return int Gesamtanzahl der Events
+     */
     public function getTotalCount(): int
     {
         return (int) $this->createQueryBuilder('e')
@@ -94,7 +99,9 @@ class EventRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return Event[]
+     * Liefert alle Events absteigend nach Erstellungszeit.
+     *
+     * @return Event[] Liste der Events
      */
     public function findAllOrderedByCreated(): array
     {
@@ -117,6 +124,12 @@ class EventRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * Anzahl der Events mit einem bestimmten Status.
+     *
+     * @param EventStatus $status Der zu prüfende Status
+     * @return int Anzahl der Events mit diesem Status
+     */
     public function getCountByStatus(EventStatus $status): int
     {
         return (int) $this->createQueryBuilder('e')
@@ -128,7 +141,9 @@ class EventRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return Event[]
+     * Liefert alle Events, die als Templates markiert sind.
+     *
+     * @return Event[] Template-Events
      */
     public function findTemplates(): array
     {
@@ -140,7 +155,9 @@ class EventRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return Event[]
+     * Liefert Events, die keine Templates sind (reguläre Events).
+     *
+     * @return Event[] Liste regulärer Events
      */
     public function findNonTemplates(): array
     {

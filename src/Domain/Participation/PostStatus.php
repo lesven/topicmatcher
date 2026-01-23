@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Domain\Participation;
 
+/**
+ * Enum für den Moderationsstatus eines Posts und Hilfsmethoden zur
+ * Abfrage von Sichtbarkeit und Moderierbarkeit.
+ */
 enum PostStatus: string
 {
     case SUBMITTED = 'submitted';

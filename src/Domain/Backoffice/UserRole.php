@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\Backoffice;
 
+/**
+ * Enum, das Backoffice-Rollen mit Berechtigungs-Hilfsmethoden kapselt.
+ */
 enum UserRole: string
 {
     case ADMIN = 'ROLE_ADMIN';

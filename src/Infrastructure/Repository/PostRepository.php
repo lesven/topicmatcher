@@ -97,6 +97,13 @@ class PostRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * Zähle Posts für ein Event nach Status.
+     *
+     * @param Event $event Das Event
+     * @param PostStatus $status Der Status
+     * @return int Anzahl der Posts
+     */
     public function countByEventAndStatus(Event $event, PostStatus $status): int
     {
         return (int) $this->createQueryBuilder('p')
@@ -109,6 +116,11 @@ class PostRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
+    /**
+     * Zähle alle Posts.
+     *
+     * @return int Gesamtanzahl der Posts
+     */
     public function getTotalCount(): int
     {
         return (int) $this->createQueryBuilder('p')
@@ -117,6 +129,12 @@ class PostRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
+    /**
+     * Zähle Posts nach Status.
+     *
+     * @param PostStatus $status Zu zählender Status
+     * @return int Anzahl der Posts mit diesem Status
+     */
     public function getCountByStatus(PostStatus $status): int
     {
         return (int) $this->createQueryBuilder('p')
@@ -163,6 +181,12 @@ class PostRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * Zähle Posts für ein bestimmtes Event.
+     *
+     * @param Event $event Das Event
+     * @return int Anzahl der Posts
+     */
     public function countByEvent(Event $event): int
     {
         return (int) $this->createQueryBuilder('p')
