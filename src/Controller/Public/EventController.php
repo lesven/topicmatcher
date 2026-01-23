@@ -25,14 +25,14 @@ use Symfony\Component\Routing\Attribute\Route;
 class EventController extends AbstractController
 {
     /**
-     * Constructor - injects query services, interest service, repositories and QR code service.
+     * Konstruktor – injiziert Query-Services, das InterestSubmissionService, Repositories und den QR-Code-Service.
      *
-     * @param EventQueryService $eventQueryService Event query service
-     * @param PostQueryService $postQueryService Post query service
-     * @param InterestSubmissionService $interestService Interest submission service
-     * @param EntityManagerInterface $entityManager Entity manager
-     * @param PostRepository $postRepository Post repository
-     * @param QrCodeService $qrCodeService QR code generation service
+     * @param EventQueryService $eventQueryService Event-Query-Service
+     * @param PostQueryService $postQueryService Post-Query-Service
+     * @param InterestSubmissionService $interestService InterestSubmissionService
+     * @param EntityManagerInterface $entityManager Entity Manager
+     * @param PostRepository $postRepository Post-Repository
+     * @param QrCodeService $qrCodeService QR-Code-Service
      */
     public function __construct(
         private readonly EventQueryService $eventQueryService,

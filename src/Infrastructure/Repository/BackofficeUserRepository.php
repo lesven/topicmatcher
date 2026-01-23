@@ -81,10 +81,10 @@ class BackofficeUserRepository extends ServiceEntityRepository implements Passwo
     }
 
     /**
-     * Find a BackofficeUser by email.
+     * Findet einen Backoffice-Benutzer anhand der E-Mail-Adresse.
      *
-     * @param string $email Email address to search for
-     * @return BackofficeUser|null The user or null if not found
+     * @param string $email E-Mail-Adresse
+     * @return BackofficeUser|null Gefundener Benutzer oder null
      */
     public function findByEmail(string $email): ?BackofficeUser
     {

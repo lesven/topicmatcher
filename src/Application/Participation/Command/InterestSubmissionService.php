@@ -87,10 +87,10 @@ readonly class InterestSubmissionService
     }
 
     /**
-     * Get the number of interests for a given post.
+     * Liefert die Anzahl der Interessen für einen gegebenen Post.
      *
-     * @param Post $post The post to count interests for
-     * @return int The number of interests
+     * @param Post $post Der Post
+     * @return int Anzahl der Interessen
      */
     public function getInterestCount(Post $post): int
     {

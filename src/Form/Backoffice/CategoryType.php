@@ -15,19 +15,19 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Backoffice form type to create or edit a Category.
+ * Backoffice-Formular zum Erstellen oder Bearbeiten einer Kategorie.
  */
 class CategoryType extends AbstractType
 {
     /**
-     * Build the category form fields.
+     * Baut die Formularfelder für Kategorien auf.
      *
-     * @param FormBuilderInterface $builder The form builder
-     * @param array $options Form options
+     * @param FormBuilderInterface $builder Formular-Builder
+     * @param array $options Formularoptionen
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder
+
             ->add('name', TextType::class, [
                 'label' => 'Name',
                 'attr' => [
@@ -88,9 +88,9 @@ class CategoryType extends AbstractType
     }
 
     /**
-     * Configure form options for the category type.
+     * Konfiguriert die Formularoptionen für den Kategorie-Typ.
      *
-     * @param OptionsResolver $resolver The options resolver
+     * @param OptionsResolver $resolver Der Options-Resolver
      */
     public function configureOptions(OptionsResolver $resolver): void
     {

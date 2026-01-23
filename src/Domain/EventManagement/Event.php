@@ -340,7 +340,12 @@ class Event
     }
 
     /**
-     * Creates a duplicate of this event for template usage
+     * Erzeugt eine Duplikat dieses Events (z.B. für Templates).
+     *
+     * @param string $newName Name des neuen Events
+     * @param string $newSlug Einzigartiger Slug für das neue Event
+     * @param bool $copyCategories Ob Kategorien kopiert werden sollen
+     * @return Event Das neu erstellte Event
      */
     public function createDuplicate(string $newName, string $newSlug, bool $copyCategories = true): Event
     {

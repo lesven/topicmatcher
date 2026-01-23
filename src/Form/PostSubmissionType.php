@@ -18,15 +18,15 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Form type for submitting a new Post.
+ * Formular für die Einreichung eines neuen Beitrags.
  */
 class PostSubmissionType extends AbstractType
 {
     /**
-     * Build the post submission form.
+     * Baut das Formular zur Beitragseinreichung auf.
      *
-     * @param FormBuilderInterface $builder The form builder
-     * @param array $options Form options
+     * @param FormBuilderInterface $builder Formular-Builder
+     * @param array $options Formularoptionen
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -128,9 +128,9 @@ class PostSubmissionType extends AbstractType
     }
 
     /**
-     * Configure default options for the post submission form.
+     * Konfiguriert die Standardoptionen für das Beitragseinreichungsformular.
      *
-     * @param OptionsResolver $resolver The options resolver
+     * @param OptionsResolver $resolver Der Options-Resolver
      */
     public function configureOptions(OptionsResolver $resolver): void
     {

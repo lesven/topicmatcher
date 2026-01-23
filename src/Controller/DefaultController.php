@@ -15,9 +15,9 @@ use Symfony\Component\Routing\Attribute\Route;
 class DefaultController extends AbstractController
 {
     /**
-     * Constructor - injects EventQueryService.
+     * Konstruktor – injiziert den EventQueryService.
      *
-     * @param EventQueryService $eventQueryService Service to query events
+     * @param EventQueryService $eventQueryService Service zum Abruf von Events
      */
     public function __construct(
         private readonly EventQueryService $eventQueryService
