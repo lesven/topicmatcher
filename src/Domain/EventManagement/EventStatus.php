@@ -64,7 +64,7 @@ enum EventStatus: string
     }
 
     /**
-     * Returns the Bootstrap color class for this status
+     * Liefert die Bootstrap-Farbklasse für diesen Status.
      */
     public function getColor(): string
     {
@@ -77,7 +77,7 @@ enum EventStatus: string
     }
 
     /**
-     * Returns the order/priority of this status for timeline display
+     * Liefert die Reihenfolge/Priorität dieses Status für die Timeline-Anzeige.
      */
     public function getOrder(): int
     {
@@ -90,7 +90,7 @@ enum EventStatus: string
     }
 
     /**
-     * Returns the human-readable label for this status
+     * Liefert das menschenlesbare Label für diesen Status.
      */
     public function getLabel(): string
     {

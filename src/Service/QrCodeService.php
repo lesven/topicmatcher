@@ -12,14 +12,14 @@ use Endroid\QrCode\Color\Color;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
- * Service responsible for generating QR codes (Data URIs) for URLs used in the public site.
+ * Dienst zur Erzeugung von QR-Codes (Data-URIs) für öffentliche URLs.
  */
 class QrCodeService
 {
     /**
-     * QrCodeService constructor.
+     * QrCodeService Konstruktor.
      *
-     * @param UrlGeneratorInterface $urlGenerator URL generator used to build absolute links
+     * @param UrlGeneratorInterface $urlGenerator URL-Generator für absolute Links
      */
     public function __construct(
         private readonly UrlGeneratorInterface $urlGenerator
@@ -27,11 +27,11 @@ class QrCodeService
     }
 
     /**
-     * Generate a QR code for the given route and return it as a data URI.
+     * Erzeugt einen QR-Code für eine Route und gibt diesen als Data-URI zurück.
      *
-     * @param string $route Route name to generate URL for
-     * @param array $parameters Route parameters
-     * @return string Data URI containing the QR code image
+     * @param string $route Routename
+     * @param array $parameters Routenparameter
+     * @return string Data-URI mit dem QR-Code-Bild
      */
     public function generateQrCodeDataUri(string $route, array $parameters = []): string
     {
@@ -64,11 +64,11 @@ class QrCodeService
     }
 
     /**
-     * Generate a data URI QR code that links to the interest form for a post.
+     * Erzeugt einen Data-URI QR-Code, der auf das Interessenformular eines Beitrags verweist.
      *
-     * @param string $eventSlug Event slug
-     * @param int $postId Post id
-     * @return string QR code data URI
+     * @param string $eventSlug Event-Slug
+     * @param int $postId Post-ID
+     * @return string QR-Code als Data-URI
      */
     public function generateInterestQrCode(string $eventSlug, int $postId): string
     {

@@ -22,7 +22,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class ModerationController extends AbstractController
 {
     /**
-     * Constructor - injects moderation service, post repository and entity manager.
+     * Konstruktor – injiziert den Moderationsservice, das Post-Repository und den EntityManager.
      *
      * @param ModerationQueryService $moderationQueryService Service für Moderationsstatistiken
      * @param PostRepository $postRepository Repository für Posts

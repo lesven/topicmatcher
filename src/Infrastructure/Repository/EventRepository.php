@@ -36,10 +36,10 @@ class EventRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find an Event by its slug.
+     * Findet ein Event anhand des Slugs.
      *
-     * @param string $slug Event slug
-     * @return Event|null The found Event or null
+     * @param string $slug Event-Slug
+     * @return Event|null Gefundenes Event oder null
      */
     public function findBySlug(string $slug): ?Event
     {
@@ -169,11 +169,11 @@ class EventRepository extends ServiceEntityRepository
     }
 
     /**
-     * Generate a unique slug based on a base slug by appending a numeric
-     * suffix until the slug is unique.
+     * Erzeugt einen eindeutigen Slug basierend auf einem Basis-Slug. Falls der
+     * Slug bereits existiert, wird eine numerische Endung angehängt.
      *
-     * @param string $baseSlug The base slug to start from
-     * @return string A unique slug
+     * @param string $baseSlug Basis-Slug
+     * @return string Eindeutiger Slug
      */
     public function generateUniqueSlug(string $baseSlug): string
     {

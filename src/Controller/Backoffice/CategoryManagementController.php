@@ -24,11 +24,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class CategoryManagementController extends AbstractController
 {
     /**
-     * Constructor - injects repositories and entity manager for categories.
+     * Konstruktor – injiziert die benötigten Repositories und den EntityManager für Kategorien.
      *
-     * @param EventRepository $eventRepository Event repository
-     * @param CategoryRepository $categoryRepository Category repository
-     * @param EntityManagerInterface $entityManager Entity manager
+     * @param EventRepository $eventRepository Event-Repository
+     * @param CategoryRepository $categoryRepository Category-Repository
+     * @param EntityManagerInterface $entityManager Entity Manager
      */
     public function __construct(
         private readonly EventRepository $eventRepository,

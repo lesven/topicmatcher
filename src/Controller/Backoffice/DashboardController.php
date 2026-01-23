@@ -18,7 +18,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class DashboardController extends AbstractController
 {
     /**
-     * Constructor - injects ModerationQueryService.
+     * Konstruktor – injiziert den ModerationQueryService.
      *
      * @param ModerationQueryService $moderationQueryService Service für Moderationsstatistiken
      */

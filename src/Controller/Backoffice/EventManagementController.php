@@ -25,10 +25,10 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class EventManagementController extends AbstractController
 {
     /**
-     * Constructor - injects repositories and entity manager.
+     * Konstruktor – injiziert Repositories und den EntityManager.
      *
-     * @param EventRepository $eventRepository Repositorium für Events
-     * @param PostRepository $postRepository Repositorium für Posts
+     * @param EventRepository $eventRepository Event-Repository
+     * @param PostRepository $postRepository Post-Repository
      * @param EntityManagerInterface $entityManager Entity Manager
      */
     public function __construct(

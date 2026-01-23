@@ -43,11 +43,11 @@ class InterestRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find an Interest by post and email.
+     * Findet eine Interessenbekundung für einen Post anhand der E-Mail.
      *
-     * @param Post $post The post to search in
-     * @param string $email The email to search for
-     * @return Interest|null Found interest or null
+     * @param Post $post Der zu durchsuchende Post
+     * @param string $email Die E-Mail-Adresse
+     * @return Interest|null Gefundene Interessenbekundung oder null
      */
     public function findByPostAndEmail(Post $post, string $email): ?Interest
     {

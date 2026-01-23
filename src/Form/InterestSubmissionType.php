@@ -15,17 +15,17 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Form type for submitting an interest for a post.
+ * Formular für die Abgabe einer Interessenbekundung zu einem Beitrag.
  *
- * Includes name, email, optional message and privacy acceptance.
+ * Enthält Name, E-Mail, optionale Nachricht und Datenschutzakzeptanz.
  */
 class InterestSubmissionType extends AbstractType
 {
     /**
-     * Build the interest submission form.
+     * Baut das Formular zur Interessenbekundung auf.
      *
-     * @param FormBuilderInterface $builder The form builder
-     * @param array $options Form options
+     * @param FormBuilderInterface $builder Formular-Builder
+     * @param array $options Formularoptionen
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -90,9 +90,9 @@ class InterestSubmissionType extends AbstractType
     }
 
     /**
-     * Configure default options for the form.
+     * Konfiguriert die Standardoptionen für das Formular.
      *
-     * @param OptionsResolver $resolver The options resolver
+     * @param OptionsResolver $resolver Der Options-Resolver
      */
     public function configureOptions(OptionsResolver $resolver): void
     {

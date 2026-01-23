@@ -20,10 +20,10 @@ readonly class EventQueryService
     }
 
     /**
-     * Find an Event by its slug.
+     * Findet ein Event anhand seines Slugs.
      *
-     * @param string $slug The event slug
-     * @return Event|null The matching Event or null if not found
+     * @param string $slug Event-Slug
+     * @return Event|null Gefundenes Event oder null
      */
     public function findBySlug(string $slug): ?Event
     {
@@ -31,9 +31,9 @@ readonly class EventQueryService
     }
 
     /**
-     * Return events visible to the public.
+     * Liefert Events, die öffentlich sichtbar sind.
      *
-     * @return Event[] List of publicly visible events
+     * @return Event[] Liste öffentlich sichtbarer Events
      */
     public function findPubliclyVisible(): array
     {
@@ -41,9 +41,9 @@ readonly class EventQueryService
     }
 
     /**
-     * Return currently active events.
+     * Liefert aktuell aktive Events.
      *
-     * @return Event[] List of active events
+     * @return Event[] Liste aktiver Events
      */
     public function findActive(): array
     {
@@ -51,9 +51,9 @@ readonly class EventQueryService
     }
 
     /**
-     * Return events eligible for export.
+     * Liefert Events, die für einen Export geeignet sind.
      *
-     * @return Event[] List of exportable events
+     * @return Event[] Liste exportierbarer Events
      */
     public function findExportable(): array
     {

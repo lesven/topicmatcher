@@ -26,9 +26,9 @@ readonly class ModerationQueryService
     }
 
     /**
-     * Gather moderation dashboard statistics.
+     * Liefert Statistiken für das Moderations-Dashboard.
      *
-     * @return array<string,int> Associative array with counts for dashboard display
+     * @return array<string,int> Assoziatives Array mit Zählwerten für das Dashboard
      */
     public function getDashboardStats(): array
     {
@@ -43,10 +43,10 @@ readonly class ModerationQueryService
     }
 
     /**
-     * Return a list of pending posts for moderation.
+     * Liefert eine Liste anstehender Beiträge zur Moderation.
      *
-     * @param int $limit Maximum number of posts to return
-     * @return array List of pending posts
+     * @param int $limit Maximale Anzahl zurückgegebener Beiträge
+     * @return array Liste anstehender Beiträge
      */
     public function getPendingPosts(int $limit = 10): array
     {
@@ -54,12 +54,12 @@ readonly class ModerationQueryService
     }
 
     /**
-     * Return recent moderation activity entries for the dashboard.
+     * Liefert die jüngsten Moderationsaktivitäten für das Dashboard.
      *
-     * Each entry contains keys: title, description, type, createdAt and post.
+     * Jede Aktivität enthält die Schlüssel: title, description, type, createdAt und post.
      *
-     * @param int $limit Maximum number of activity entries to return
-     * @return array List of activity arrays
+     * @param int $limit Maximale Anzahl zurückzugebender Aktivitäten
+     * @return array Liste von Aktivitäts-Arrays
      */
     public function getRecentModerationActivity(int $limit = 10): array
     {
