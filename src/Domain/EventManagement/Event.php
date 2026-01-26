@@ -380,10 +380,22 @@ class Event
      */
     /**
      * Wichtige MVP-Regel: Draft-Events sind immer leer
+     *
+     * Prüft neben dem Status auch, dass keine Kategorie genehmigte Beiträge enthält.
      */
     public function isDraftAndEmpty(): bool
     {
-        return $this->status === EventStatus::DRAFT;
+        if ($this->status !== EventStatus::DRAFT) {
+            return false;
+        }
+
+        foreach ($this->categories as $category) {
+            if ($category->getPosts()->count() > 0) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

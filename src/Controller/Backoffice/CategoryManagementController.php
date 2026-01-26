@@ -168,7 +168,8 @@ class CategoryManagementController extends AbstractController
             return $this->redirectToRoute('backoffice_categories_index', ['slug' => $event->getSlug()]);
         }
 
-        if ($this->isCsrfTokenValid('delete'.$category->getId(), $request->getPayload()->getString('_token'))) {
+        $token = $request->request->get('_token');
+        if ($this->isCsrfTokenValid('delete'.$category->getId(), $token)) {
             $this->categoryRepository->remove($category, true);
             
             $this->addFlash('success', sprintf('Kategorie "%s" wurde erfolgreich gelöscht.', $category->getName()));
