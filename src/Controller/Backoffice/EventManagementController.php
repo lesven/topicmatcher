@@ -7,6 +7,7 @@ namespace App\Controller\Backoffice;
 use App\Application\Backoffice\Query\ModerationQueryService;
 use App\Domain\EventManagement\Event;
 use App\Domain\EventManagement\EventStatus;
+use App\Application\EventManagement\Command\EventCommandService;
 use App\Infrastructure\Repository\EventRepository;
 use App\Infrastructure\Repository\PostRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -34,7 +35,8 @@ class EventManagementController extends AbstractController
     public function __construct(
         private readonly EventRepository $eventRepository,
         private readonly PostRepository $postRepository,
-        private readonly EntityManagerInterface $entityManager
+        private readonly EntityManagerInterface $entityManager,
+        private readonly EventCommandService $eventCommandService
     ) {
     }
 
@@ -81,45 +83,30 @@ class EventManagementController extends AbstractController
      */
     public function create(Request $request): Response
     {
-        if ($request->isMethod('POST')) {
+        $form = $this->createForm(\App\Form\EventCreateType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
             try {
-                $name = trim($request->request->get('name', ''));
-                $slug = trim($request->request->get('slug', ''));
-                $description = trim($request->request->get('description', ''));
-                $location = trim($request->request->get('location', ''));
-                $eventDate = $request->request->get('event_date');
+                $event = $this->eventCommandService->createEvent(
+                    $data['name'],
+                    $data['slug'],
+                    $data['description'] ?? null,
+                    $data['eventDate'] ?? null,
+                    $data['location'] ?? null
+                );
 
-                // Basic validation
-                if (empty($name)) {
-                    throw new \InvalidArgumentException('Event-Name ist erforderlich.');
-                }
-                if (empty($slug)) {
-                    throw new \InvalidArgumentException('URL-Slug ist erforderlich.');
-                }
-
-                // Check slug uniqueness
-                if ($this->eventRepository->findBySlug($slug)) {
-                    throw new \InvalidArgumentException('Dieser URL-Slug ist bereits vergeben.');
-                }
-
-                // Parse date
-                $parsedDate = null;
-                if ($eventDate) {
-                    $parsedDate = new \DateTime($eventDate);
-                }
-
-                $event = new Event($name, $slug, $description, $parsedDate, $location);
-                $this->entityManager->persist($event);
-                $this->entityManager->flush();
-
-                $this->addFlash('success', sprintf('Event "%s" wurde erfolgreich erstellt.', $name));
+                $this->addFlash('success', sprintf('Event "%s" wurde erfolgreich erstellt.', $event->getName()));
                 return $this->redirectToRoute('backoffice_events_detail', ['slug' => $event->getSlug()]);
             } catch (\Exception $e) {
                 $this->addFlash('error', 'Fehler beim Erstellen: ' . $e->getMessage());
             }
         }
 
-        return $this->render('backoffice/events/create.html.twig');
+        return $this->render('backoffice/events/create.html.twig', [
+            'form' => $form->createView(),
+        ]);
     }
 
     #[Route('/{slug}', name: 'backoffice_events_detail')]
@@ -300,99 +287,35 @@ class EventManagementController extends AbstractController
      */
     public function bulkActions(Request $request): JsonResponse
     {
-        $action = $request->request->get('action');
-        $eventIds = $request->request->all('eventIds');
-        
         if (!$this->isCsrfTokenValid('bulk_actions', $request->request->get('_token'))) {
             return new JsonResponse(['success' => false, 'message' => 'Ungültiger CSRF-Token.'], 400);
         }
-        
+
+        $action = $request->request->get('action');
+        $eventIds = $request->request->all('eventIds');
+
         if (empty($eventIds) || !is_array($eventIds)) {
             return new JsonResponse(['success' => false, 'message' => 'Keine Events ausgewählt.'], 400);
         }
-        
-        $events = $this->eventRepository->findBy(['id' => $eventIds]);
-        
-        if (count($events) !== count($eventIds)) {
-            return new JsonResponse(['success' => false, 'message' => 'Einige Events wurden nicht gefunden.'], 400);
-        }
-        
-        try {
-            $successCount = 0;
-            $errors = [];
-            
-            switch ($action) {
-                case 'activate':
-                    foreach ($events as $event) {
-                        try {
-                            $event->activate();
-                            $successCount++;
-                        } catch (\Exception $e) {
-                            $errors[] = sprintf('Event "%s": %s', $event->getName(), $e->getMessage());
-                        }
-                    }
-                    break;
-                    
-                case 'close':
-                    foreach ($events as $event) {
-                        try {
-                            $event->close();
-                            $successCount++;
-                        } catch (\Exception $e) {
-                            $errors[] = sprintf('Event "%s": %s', $event->getName(), $e->getMessage());
-                        }
-                    }
-                    break;
-                    
-                case 'archive':
-                    foreach ($events as $event) {
-                        try {
-                            $event->archive();
-                            $successCount++;
-                        } catch (\Exception $e) {
-                            $errors[] = sprintf('Event "%s": %s', $event->getName(), $e->getMessage());
-                        }
-                    }
-                    break;
-                    
-                case 'delete':
-                    foreach ($events as $event) {
-                        try {
-                            // Check if event can be deleted (must be draft and empty)
-                            if (!$event->isDraftAndEmpty()) {
-                                $errors[] = sprintf('Event "%s" kann nicht gelöscht werden (nicht leer oder nicht im Draft-Status).', $event->getName());
-                                continue;
-                            }
-                            
-                            $this->entityManager->remove($event);
-                            $successCount++;
-                        } catch (\Exception $e) {
-                            $errors[] = sprintf('Event "%s": %s', $event->getName(), $e->getMessage());
-                        }
-                    }
-                    break;
-                    
-                default:
-                    return new JsonResponse(['success' => false, 'message' => 'Unbekannte Aktion.'], 400);
-            }
-            
-            $this->entityManager->flush();
-            
-            $message = sprintf('%d Events erfolgreich bearbeitet.', $successCount);
-            if (!empty($errors)) {
-                $message .= ' Fehler: ' . implode(', ', $errors);
-            }
-            
+
+        $result = $this->eventCommandService->bulkActions($eventIds, $action);
+
+        if (isset($result['errorMessages']) && count($result['errorMessages']) > 0) {
+            $message = sprintf('%d Events erfolgreich bearbeitet. Fehler: %s', $result['successCount'], implode(', ', $result['errorMessages']));
             return new JsonResponse([
-                'success' => true, 
+                'success' => true,
                 'message' => $message,
-                'successCount' => $successCount,
-                'errorCount' => count($errors)
+                'successCount' => $result['successCount'],
+                'errorCount' => count($result['errorMessages'])
             ]);
-            
-        } catch (\Exception $e) {
-            return new JsonResponse(['success' => false, 'message' => 'Fehler beim Verarbeiten: ' . $e->getMessage()], 500);
         }
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => sprintf('%d Events erfolgreich bearbeitet.', $result['successCount']),
+            'successCount' => $result['successCount'],
+            'errorCount' => 0
+        ]);
     }
 
     #[Route('/templates', name: 'backoffice_events_templates', methods: ['GET'])]
